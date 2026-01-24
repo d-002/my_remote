@@ -4,6 +4,8 @@ import random
 REQUESTS_DIR = '_requests'
 RESULTS_DIR = '_results'
 
+DELAY = 0.1
+
 def get_hash():
     return hex(random.getrandbits(128))[2:]
 
