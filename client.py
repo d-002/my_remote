@@ -13,7 +13,7 @@ async def listener():
     while run_listener:
         content = receive_packet(RESULTS_DIR)
         if content is not None:
-            print(content)
+            print(content, end='')
 
         await asyncio.sleep(DELAY)
 

@@ -2,6 +2,8 @@ import time
 from common import *
 
 def main():
+    print('Successfully started server.')
+
     while True:
         content = receive_packet(REQUESTS_DIR)
         if content == 'stop':
