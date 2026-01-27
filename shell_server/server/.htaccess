@@ -1,0 +1,11 @@
+# set homepage link
+DirectoryIndex index.html index.php
+
+# disable directory listing
+Options -Indexes
+
+# no cache
+<IfModule mod_headers.c>
+Header set Cache-Control "no-cache, no-store, must-revalidate"
+Header set Expires 0
+</IfModule>

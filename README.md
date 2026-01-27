@@ -30,7 +30,7 @@ Try it on your own machine! (trust)
 
 **Requirements:**
 
-- A PHP-capable server
+- A PHP-capable server, that supports sqlite3
 - Python 3 on the target machine
 
 **Setup:**

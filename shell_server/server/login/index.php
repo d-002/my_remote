@@ -1,0 +1,107 @@
+<?php
+require $_SERVER["DOCUMENT_ROOT"] . "/utils/base.php";
+my_include("/utils/db.php");
+
+startsess();
+$signup = $_GET["signup"] !== NULL;
+
+// check form submission
+$error = "";
+$redirect = $_SESSION["username"] !== NULL;
+
+if (count($_POST) !== 0) {
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+    $password2 = $_POST["confirm-password"];
+
+    $len = strlen($username);
+    if ($len === 0) {
+        $error .= "Cannot have an empty username.<br>";
+    }
+    else if ($len > 32) {
+        $error .= "Username too long.<br>";
+    }
+
+    if ($signup) {
+        $len = strlen($password);
+        if ($len < 8) {
+            $error .= "Password should be at least 8 characters.<br>";
+        }
+        else if ($len > 256) {
+            $error .= "Password too long.<br>";
+        }
+
+        if ($password !== $password2) {
+            $error .= "Passwords don't match.<br>";
+        }
+    }
+
+    if ($error === "") {
+        $db = getDB();
+        $err = $signup ? registerUser($db, $username, $password)
+                       : loginUser($db, $username, $password);
+
+        if ($err === NULL) {
+            $_SESSION["username"] = $username;
+            $redirect = true;
+        }
+        else {
+            $error = $err;
+        }
+    }
+    var_dump($db->query("SELECT * FROM users")->fetchAll());
+}
+?>
+
+<html>
+<head>
+    <title>shell_server - <?= $signup ? "Sign up" : "Log in" ?></title>
+    <?php
+    if ($redirect) {
+    ?>
+    <meta http-equiv="refresh" content="0; url=/">
+    <?php
+    }
+    ?>
+</head>
+<body>
+    <form method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="<?= $username ?>">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password">
+
+        <?php
+        if ($signup) {
+        ?>
+        <label for="confirm-password">Confirm password:</label>
+        <input type="password" id="confirm-password" name="confirm-password">
+        <?php
+        }
+        ?>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <?php
+    if ($error !== "") {
+    ?>
+    <p class="error"><?= $error ?> </p>
+    <?php
+    }
+    ?>
+
+    <?php
+    if ($signup) {
+    ?>
+    <p>Already have an account?</p><a href="/login">Log in</p>
+    <?php
+    }
+    else {
+    ?>
+    <p>Don't have an account?</p><a href="/login?signup=y">Sign up</p>
+    <?php
+    }
+    ?>
+</body>
+</html>
