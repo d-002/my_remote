@@ -15,16 +15,15 @@ Tool suite for remote shells and whatnot
 ## fs_remote
 
 A basic client/server protocol using a file system for communication.  
-Allows things like a basic remote shell, and more things like client
-identification could easily be added on top of it.
+Allows things like a basic remote shell, and easily allows more features to be
+added on top of it.
 
 **Requirements:**
 
 - Python 3.x
-- Client: Python libraries: `prompt_toolkit`
-- Server: Python libraries: nothing
+- Python libraries for the client: `prompt_toolkit`
 
-## 
+## shell_server
 
 A simple remote shell, operated from a web interface.
 Try it on your own machine! (trust)
@@ -39,40 +38,35 @@ Try it on your own machine! (trust)
 - Host the server.
 - Log into the server, creating a user to which the machines you affect will be
   linked.
-  This also adds a small security layer for who is able to run commands on these
-  machines.
+  This also adds a small security layer to determine who is able to run commands
+  on these machines.
 - Run the remote shell installer on the target machine, which will query for the
-  url to your server, as well as your login information to make sure you are
-  who you pretend to be.
-  The code will then store this encrypted information for authentication during
-  communication as well as download the remote shell program from the server.
+  url to your server, as well as your login information.
+  This registers the client and makes it visible in your dashboard.
 
 The remote shell program sends a heartbeat to the server, which also serves as
 a way to check its software version.
+Any new version is automatically installed on the targets by querying the code
+on the server, updating the local files and restarting the program.
 
-Any new version is automatically installed by updating the code and restarting
-the program.
-
-If you are authorized, you can then access a shell and send commands to a
-specific client.
-The commands are queued, even if the client is offline.
+On the server dashboard is a simple remote shell available for all linked
+clients.
+The commands are queued, even if the client is offline, and an indicator shows
+how many are still left to run.
+The client can also be force restarted if it gets stuck.
 
 **Technical details:**
-
-The login details are encrypted client-side on top of the server-side
-encryption, to provide security even on http servers.
-
-As for server / client authorization:
 
 On creating an account on the server a unique hash is associated with it.
 When setting up the remote shell on a machine, upon logging the server answers
 with two keys: first the key of the user, then a new key for the machine.
-On the server-side, the machine's key is added to the list linked to the user.
+On the server-side, the machine's key is added to the user's linked machines.
 
 The key pair will be used during transactions to identify the machine and the
 user it wants to communicate with.
-The client initiates all data transmissions: querying for a new version, updated
-program files, the command queue, or for a dequeue instruction.
+The client initiates all data transmissions: querying for a new version or
+update files, to read the command queue and edit it, or write to the output
+stream (combined stdout and stderr).
 
 Server admins have full control and can view all keys but this should not really
 matter (and I'm too lazy to fix this).
