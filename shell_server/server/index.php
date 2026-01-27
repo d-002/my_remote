@@ -9,7 +9,7 @@ if ($_SESSION["username"] === NULL) {
 <?php
 }
 ?>
-    <title>shell_server</title>
+    <title>shell_server - Dashboard</title>
 </head>
 
 <body>

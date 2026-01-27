@@ -49,7 +49,6 @@ if (count($_POST) !== 0) {
             $error = $err;
         }
     }
-    var_dump($db->query("SELECT * FROM users")->fetchAll());
 }
 ?>
 
