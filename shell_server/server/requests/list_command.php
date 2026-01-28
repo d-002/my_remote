@@ -2,12 +2,17 @@
 require $_SERVER["DOCUMENT_ROOT"] . "/utils/base.php";
 my_include("/utils/db.php");
 
-$user_hash = $_REQUEST["user"];
-$machine_hash = $_REQUEST["machine"];
+// notice: if either hash is wrong, no commands will be displayed withouh an
+// error.
 
-$db = getDB();
+function getRequest() {
+    $user_hash = $_REQUEST["user"];
+    $machine_hash = $_REQUEST["machine"];
 
-$st = $db->prepare("
+    $db = getDB();
+
+    try {
+        $st = $db->prepare("
 WITH target AS (
     SELECT links.id
     FROM links
@@ -23,16 +28,29 @@ FROM commands
 JOIN target
     ON commands.link_id = target.id");
 
-$st->execute(["user_hash" => $user_hash, "machine_hash" => $machine_hash]);
+        $st->execute(["user_hash" => $user_hash, "machine_hash" => $machine_hash]);
 
-while (true) {
-    $current = $st->fetch();
-    if ($current === false) {
-        break;
+        return $st;
     }
-
-    echo $current["content"] . "\n";
+    catch (Exception $e) {
+        return NULL;
+    }
 }
 
-$st->closeCursor();
+$st = getRequest();
+if ($st === NULL) {
+    echo "error: Could not list commands.";
+}
+else {
+    while (true) {
+        $current = $st->fetch();
+        if ($current === false) {
+            break;
+        }
+
+        echo $current["content"] . "\n";
+    }
+
+    $st->closeCursor();
+}
 ?>

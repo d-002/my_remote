@@ -2,15 +2,27 @@
 require $_SERVER["DOCUMENT_ROOT"] . "/utils/base.php";
 my_include("/utils/db.php");
 
-$username = $_REQUEST["username"];
-$password = $_REQUEST["password"];
+function getText() {
+    $username = $_REQUEST["username"];
+    $password = $_REQUEST["password"];
 
-$db = getDB();
-$err = loginUser($db, $username, $password);
+    $db = getDB();
+    $err = loginUser($db, $username, $password);
+    if ($err !== "") {
+        return "error: " . $err;
+    }
 
-if ($err == "") {
     $user = fetchUser($db, $username);
-    $hash = registerMachine($db, $user);
+    if ($user === NULL) {
+        return "error: Could not fetch user after login.";
+    }
 
-    echo '{"user_hash":"' . $user["hash"] . ',"machine_hash":"' . $hash . '"}';
+    $hash = registerMachine($db, $user);
+    if ($hash === NULL) {
+        return "error: Could not register machine.";
+    }
+
+    return '{"user_hash":"' . $user["hash"] . ',"machine_hash":"' . $hash . '"}';
 }
+
+echo getText();

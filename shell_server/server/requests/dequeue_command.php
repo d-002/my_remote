@@ -2,12 +2,14 @@
 require $_SERVER["DOCUMENT_ROOT"] . "/utils/base.php";
 my_include("/utils/db.php");
 
-$user_hash = $_REQUEST["user"];
-$machine_hash = $_REQUEST["machine"];
+function getError() {
+    $user_hash = $_REQUEST["user"];
+    $machine_hash = $_REQUEST["machine"];
 
-$db = getDB();
+    $db = getDB();
 
-$st = $db->prepare("
+    try {
+        $st = $db->prepare("
 WITH target AS (
     SELECT links.id
     FROM links
@@ -25,15 +27,31 @@ JOIN target
 ORDER BY commands.id ASC
 LIMIT 1");
 
-$st->execute(["user_hash" => $user_hash, "machine_hash" => $machine_hash]);
+        $st->execute(["user_hash" => $user_hash, "machine_hash" => $machine_hash]);
+    }
+    catch (Exception $e) {
+        return "error: Could not get command.";
+    }
 
-$command_id = $st->fetchColumn();
-$st->closeCursor();
+    $command_id = $st->fetchColumn();
+    $st->closeCursor();
 
-if ($command_id !== false) {
-    $st = $db->prepare("
+    if ($command_id === NULL) {
+        return "error: Could not get command.";
+    }
+
+    try {
+        $st = $db->prepare("
 DELETE FROM commands
 WHERE commands.id = :id");
-    $st->execute(["id" => $command_id]);
+        $st->execute(["id" => $command_id]);
+    }
+    catch (Exception $e) {
+        return "error: Could not delete command.";
+    }
+
+    return "success";
 }
+
+echo getError();
 ?>

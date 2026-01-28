@@ -41,12 +41,12 @@ if (count($_POST) !== 0) {
         $err = $signup ? registerUser($db, $username, $password)
                        : loginUser($db, $username, $password);
 
-        if ($err === NULL) {
+        if ($err === "") {
             $_SESSION["username"] = $username;
             $redirect = true;
         }
         else {
-            $error = $err;
+            $error .= $err . "<br>";
         }
     }
 }
