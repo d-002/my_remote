@@ -52,17 +52,17 @@ function loginUser($db, $username, $password) {
     return "";
 }
 
-function registerMachine($db, $user) {
+function registerMachine($db, $user, $ip) {
     $hash = hash("sha256", $user["username"] . microtime());
 
     try {
         $db->beginTransaction();
         $st = $db->prepare("
 INSERT INTO machines
-    (hash)
+    (hash, name)
 VALUES
-    (:hash)");
-        $st->execute(["hash" => $hash]);
+    (:hash, :ip)");
+        $st->execute(["hash" => $hash, "ip" => $ip]);
 
         $st = $db->prepare("
 SELECT machines.id
@@ -84,7 +84,7 @@ VALUES
         $db->commit();
     }
     catch (Exception $e) {
-        $st->rollBack();
+        $db->rollBack();
         return NULL;
     }
 

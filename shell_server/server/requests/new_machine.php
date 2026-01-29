@@ -4,7 +4,15 @@ my_include("/utils/db.php");
 my_include("/utils/db-login.php");
 
 $db = getDB();
-$error = loginUser($db, $_REQUEST["username"], $_REQUEST["password"]);
+
+$ip = $_SERVER["REMOTE_ADDR"];
+
+if ($ip === "") {
+    $error = "Could not figure out machine ip";
+}
+else {
+    $error = loginUser($db, $_REQUEST["username"], $_REQUEST["password"]);
+}
 
 if ($error === "") {
     $user = fetchUser($db, $_REQUEST["username"]);
@@ -15,7 +23,7 @@ if ($error === "") {
 }
 
 if ($error === "") {
-    $hash = registerMachine($db, $user);
+    $hash = registerMachine($db, $user, $ip);
     if ($hash === NULL) {
         $error = "Could not register machine.";
     }
