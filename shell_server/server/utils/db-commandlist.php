@@ -64,15 +64,17 @@ WHERE commands.id = :id");
     return "";
 }
 
-function enqueueCommand($db, $link_id, $content) {
+function enqueueCommand($db, $link_id, $is_user, $content) {
     try {
         $st = $db->prepare("
 INSERT INTO commands
-    (link_id, content)
+    (link_id, is_user, content)
 VALUES
-    (:link_id, :content)");
+    (:link_id, :is_user, :content)");
 
-        $st->execute(["link_id" => $link_id, "content" => $_REQUEST["content"]]);
+        $st->execute(["link_id" => $link_id,
+                      "is_user" => $is_user,
+                      "content" => $_REQUEST["content"]]);
     }
     catch (Exception $e) {
         return "Could not add command.";

@@ -19,7 +19,9 @@ else {
             break;
         }
 
-        echo $current["content"] . "\n";
+        $prefix = $current["is_user"] === 0 ? "machine" : "user";
+        $prefix .= ": ";
+        echo $prefix . $current["content"] . "\n";
     }
 
     $st->closeCursor();

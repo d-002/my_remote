@@ -58,6 +58,7 @@ CREATE TABLE links (
 CREATE TABLE commands (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     link_id INTEGER,
+    is_user INTEGER,
     content TEXT,
     FOREIGN KEY(link_id) REFERENCES links(id)
 )");

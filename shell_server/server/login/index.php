@@ -99,7 +99,7 @@ if (count($_POST) !== 0) {
     }
     else {
     ?>
-    <p>Don't have an account?</p><a href="/login?signup=y">Sign up</p>
+    <p>Don't have an account?</p><a href="/login?signup">Sign up</p>
     <?php
     }
     ?>

@@ -11,7 +11,8 @@ if ($link_id === NULL) {
     $error = "Could not get user/machine link.";
 }
 else {
-    $error = enqueueCommand($db, $link_id, $_REQUEST["content"]);
+    $is_user = $_REQUEST["is_user"] === NULL ? 0 : 1;
+    $error = enqueueCommand($db, $link_id, $is_user, $_REQUEST["content"]);
 }
 
 echo $error === "" ? "success" : "error: " . $error;

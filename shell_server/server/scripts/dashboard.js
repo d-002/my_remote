@@ -54,6 +54,25 @@ function deselect() {
     updateShell();
 }
 
+function sendCommand() {
+    if (selected.index < 0) {
+        alert("error: Please select a machine first.");
+        return;
+    }
+
+    const content = command.value;
+    fetch("/requests/enqueue_command.php?user=" + user_hash + "&machine="
+        + selected.hash + "&is_user&content=" + content, text => {
+            if (text.startsWith("error")) {
+                alert(text);
+            }
+            else {
+                updateShell();
+                command.value = "";
+            }
+    });
+}
+
 // ===== listeners =====
 
 machinesList.addEventListener("click", evt => {
