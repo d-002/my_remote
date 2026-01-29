@@ -1,6 +1,7 @@
 <?php
 require $_SERVER["DOCUMENT_ROOT"] . "/utils/base.php";
 my_include("/utils/db.php");
+my_include("/utils/db-login.php");
 
 startsess();
 $signup = $_GET["signup"] !== NULL;
