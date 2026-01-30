@@ -31,7 +31,7 @@ Try it on your own machine! (trust)
 **Requirements:**
 
 - A PHP-capable server, that supports sqlite3
-- Python 3 on the target machine
+- C compiling suite on the target machines
 
 **Setup:**
 
@@ -48,12 +48,6 @@ The remote shell program sends a heartbeat to the server, which also serves as
 a way to check its software version.
 Any new version is automatically installed on the targets by querying the code
 on the server, updating the local files and restarting the program.
-
-On the server dashboard is a simple remote shell available for all linked
-clients.
-The commands are queued, even if the client is offline, and an indicator shows
-how many are still left to run.
-The client can also be force restarted if it gets stuck.
 
 **Technical details:**
 
