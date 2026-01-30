@@ -48,19 +48,21 @@ The remote shell program sends a heartbeat to the server, which also serves as
 a way to check its software version.
 Any new version is automatically installed on the targets by querying the code
 on the server, updating the local files and restarting the program.
+Software versions are handled separately for all website users, to avoid
+breaking changes.
 
 **Technical details:**
 
 On creating an account on the server a unique hash is associated with it.
 When setting up the remote shell on a machine, upon logging the server answers
-with two keys: first the key of the user, then a new key for the machine.
-On the server-side, the machine's key is added to the user's linked machines.
+with two keys: the key of the user, and a new key for the machine.
+On the server side, the machine's key is added to the user's linked machines.
 
 The key pair will be used during transactions to identify the machine and the
 user it wants to communicate with.
-The client initiates all data transmissions: querying for a new version or
-update files, to read the command queue and edit it, or write to the output
-stream (combined stdout and stderr).
+The client (and in some cases the website user) initiates all data
+transmissions: querying for a new version or update files, to read the command
+queue and edit it, or write to the output stream (combined stdout and stderr).
 
 Server admins have full control and can view all keys but this should not really
 matter (and I'm too lazy to fix this).
