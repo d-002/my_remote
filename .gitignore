@@ -1,6 +1,15 @@
-__pycache__
+# vim
 *.swp
 *~
+
+# python
+__pycache__
 _requests
 _results
+
+# sqlite
 *.db
+
+# c
+*.o
+shell_client
