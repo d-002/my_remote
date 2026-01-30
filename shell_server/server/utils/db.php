@@ -23,6 +23,9 @@ WHERE type='table'
     }
     catch (Exception $e) {
         $db->rollback();
+
+        echo "Fatal error: could not get database, undefined behavior incoming";
+        return NULL;
     }
 
     return $db;
@@ -30,6 +33,7 @@ WHERE type='table'
 
 function resetDB($db) {
     $db->exec("DROP TABLE IF EXISTS users");
+    $db->exec("DROP TABLE IF EXISTS software");
     $db->exec("DROP TABLE IF EXISTS machines");
     $db->exec("DROP TABLE IF EXISTS links");
     $db->exec("DROP TABLE IF EXISTS commands");
@@ -41,10 +45,19 @@ CREATE TABLE users (
     hash TEXT
 )");
     $db->exec("
+CREATE TABLE software (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    version TEXT,
+    binary BLOB,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+)");
+    $db->exec("
 CREATE TABLE machines (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     hash TEXT,
-    name TEXT
+    name TEXT,
+    last_heartbeat INTEGER
 )");
     $db->exec("
 CREATE TABLE links (
@@ -59,6 +72,8 @@ CREATE TABLE commands (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     link_id INTEGER,
     is_user INTEGER,
+    is_read INTEGER DEFAULT 0,
+    timestamp INTEGER,
     content TEXT,
     FOREIGN KEY(link_id) REFERENCES links(id)
 )");

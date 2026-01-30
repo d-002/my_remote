@@ -46,16 +46,27 @@ ORDER BY commands.id ASC");
     return $st;
 }
 
-function deleteFirstCommand($db, $commands_list) {
-    try {
-        $element = $commands_list->fetch();
-        $commands_list->closeCursor();
-        $command_id = $element["id"];
+function readFirstUserCommand($db, $user_hash, $machine_hash) {
+    $link_id = getUserMachineLink($db, $user_hash, $machine_hash);
 
+    if ($link_id === NULL) {
+        return "Could not find link.";
+    }
+
+    try {
         $st = $db->prepare("
-DELETE FROM commands
-WHERE commands.id = :id");
-        $st->execute(["id" => $command_id]);
+UPDATE commands
+SET is_read = 1
+WHERE commands.id = (
+    SELECT commands.id
+    FROM commands
+    WHERE commands.link_id = :link_id
+        AND commands.is_user = 1
+        AND commands.is_read = 0
+    ORDER BY commands.timestamp ASC
+    LIMIT 1
+)");
+        $st->execute(["link_id" => $link_id]);
     }
     catch (Exception $e) {
         return "Could not delete command.";
@@ -68,12 +79,13 @@ function enqueueCommand($db, $link_id, $is_user, $content) {
     try {
         $st = $db->prepare("
 INSERT INTO commands
-    (link_id, is_user, content)
+    (link_id, is_user, timestamp, content)
 VALUES
-    (:link_id, :is_user, :content)");
+    (:link_id, :is_user, :timestamp, :content)");
 
         $st->execute(["link_id" => $link_id,
                       "is_user" => $is_user,
+                      "timestamp" => time(),
                       "content" => $_REQUEST["content"]]);
     }
     catch (Exception $e) {

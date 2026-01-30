@@ -20,6 +20,10 @@ else {
         }
 
         $prefix = $current["is_user"] === 0 ? "machine" : "user";
+        $prefix .= " ";
+        $prefix .= $current["timestamp"];
+        $prefix .= " ";
+        $prefix .= $current["is_read"] === 0 ? "pending" : "read";
         $prefix .= ": ";
         echo $prefix . $current["content"] . "\n";
     }

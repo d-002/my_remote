@@ -19,7 +19,7 @@ function updateShell() {
         return;
     }
 
-    fetch("/api/list_command.php?user=" + user_hash + "&machine="
+    fetch("/api/list_commands.php?user=" + user_hash + "&machine="
         + selected.hash, text => {
         shell.innerHTML = "";
 

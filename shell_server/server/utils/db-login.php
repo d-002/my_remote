@@ -21,17 +21,44 @@ function registerUser($db, $username, $password) {
         return "User already exists.";
     }
 
+    $version = file_get_contents($_SERVER["DOCUMENT_ROOT"] . "/software/version");
+    if ($version === false) {
+        return "Could not read current software version.";
+    }
+    $version = trim($version);
+
+    $binary = file_get_contents($_SERVER["DOCUMENT_ROOT"] . "/software/binary");
+    if ($binary === false) {
+        return "Could not read current software binary.";
+    }
+
     $userHash = hash("sha256", $username . microtime());
 
     try {
+        $db->beginTransaction();
         $st = $db->prepare("
 INSERT INTO users
     (username, password, hash)
 VALUES
-    (:username, :password, :hash)");
+    (:username, :password, :hash);
+SELECT users.id
+FROM users
+WHERE users.hash = :hash");
         $st->execute(["username" => $username, "password" => $hash, "hash" => $userHash]);
+        $user_id = $st->fetchColumn();
+        $st->closeCursor();
+        echo $user_id;
+
+        $st = $db->prepare("
+INSERT INTO software
+    (user_id, version, binary)
+VALUES
+    (:user_id, :version, :binary)");
+        $st->execute(["user_id" => $user_id, "version" => $version, "binary" => $binary]);
+        $db->commit();
     }
     catch (Exception $e) {
+        $db->rollback();
         return "Could not write to database, please try again.";
     }
 

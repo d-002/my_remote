@@ -29,4 +29,4 @@ if ($error === "") {
     }
 }
 
-echo $error === "" ? "user " . $user["hash"] . '\nmachine ' . $hash : "error: " . $error;
+echo $error === "" ? "user " . $user["hash"] . "\nmachine " . $hash : "error: " . $error;
