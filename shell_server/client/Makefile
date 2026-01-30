@@ -3,12 +3,12 @@ CPPFLAGS=-Isrc
 
 TARGET=shell_client
 OBJ_MAIN=src/main.o
-OBJ=
+OBJ=src/utils/sockutils.o
 
 TARGET_UNIT=tests/unit
 OBJ_UNIT=tests/unit.o
 
-.PHONY: all check debug coverage clean
+.PHONY: all check dev coverage clean
 
 all: $(TARGET)
 
@@ -24,14 +24,14 @@ check: LDLIBS+=-lcriterion
 check: $(TARGET) $(TARGET_UNIT)
 	./$(TARGET_UNIT) -j 1
 
-debug: CFLAGS+=-fsanitize=address -g
-debug: LDLIBS+=-fsanitize=address
-debug: check
+dev: CFLAGS+=-fsanitize=address -g
+dev: LDLIBS+=-fsanitize=address
+dev: check
 
 coverage: CFLAGS+=--coverage -fPIC
 coverage: LDLIBS+=-lgcov
 coverage: LDFLAGS+=--coverage
-coverage: debug
+coverage: dev
 	gcovr --html --html-nested --output=report.html
 	xdg-open report.html
 
