@@ -54,7 +54,8 @@ struct sock *sock_create(char *host, char *port)
 
     if (!ok)
     {
-        logerror("Failed to connect to an address.");
+        logerror("Failed to connect.");
+        freeaddrinfo(info);
         close(fd);
         return NULL;
     }
@@ -103,7 +104,7 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
     int is_post = STREQL(request_type, "POST");
     if (is_post)
     {
-        snprintf(content_length_line, LINE_SIZE, "%ld\r\n", content.length);
+        snprintf(content_length_line, LINE_SIZE, "Content-Length: %ld\r\n", content.length);
     }
     else {
         content_length_line[0] = '\0';
@@ -112,11 +113,11 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
     snprintf(headers, HEADERS_SIZE,
              "%s %s HTTP/1.1\r\n"
              "Host: %s\r\n"
-             "%s"
-             "\r\n",
+             "Connection: close\r\n"
+             "%s\r\n",
              request_type, path, sock->host, content_length_line);
 
-    ssize_t total = send(sock->fd, headers, HEADERS_SIZE, 0);
+    ssize_t total = send(sock->fd, headers, strlen(headers), 0);
 
     if (total < 0)
     {
