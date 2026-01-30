@@ -9,9 +9,15 @@ HEADERS=src/utils/sockutils.h src/utils/macros.h src/utils/stringutils.h src/log
 TARGET_UNIT=tests/unit
 OBJ_UNIT=tests/unit.o
 
-.PHONY: all check dev coverage clean
+.PHONY: all portable check dev coverage clean
 
 all: $(TARGET)
+
+portable: CC=musl-gcc
+portable: LDFLAGS+=-static
+portable: clean $(TARGET)
+	[ -n "$$(ldd $(TARGET) 2>&1 | grep 'not a dynamic executable')" ]
+	strip $(TARGET)
 
 $(TARGET): $(OBJ_MAIN) $(OBJ) $(HEADERS)
 	$(CC) -o $@ $^ $(LDLIBS) $(LDFLAGS)
