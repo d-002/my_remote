@@ -19,7 +19,7 @@ function updateShell() {
         return;
     }
 
-    fetch("/requests/list_command.php?user=" + user_hash + "&machine="
+    fetch("/api/list_command.php?user=" + user_hash + "&machine="
         + selected.hash, text => {
         shell.innerHTML = "";
 
@@ -61,7 +61,7 @@ function sendCommand() {
     }
 
     const content = command.value;
-    fetch("/requests/enqueue_command.php?user=" + user_hash + "&machine="
+    fetch("/api/enqueue_command.php?user=" + user_hash + "&machine="
         + selected.hash + "&is_user&content=" + content, text => {
             if (text.startsWith("error")) {
                 alert(text);
