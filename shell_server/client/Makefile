@@ -3,7 +3,8 @@ CPPFLAGS=-Isrc
 
 TARGET=shell_client
 OBJ_MAIN=src/main.o
-OBJ=src/utils/sockutils.o
+OBJ=src/utils/sockutils.o src/logger/logger.o
+HEADERS=src/utils/sockutils.h src/utils/macros.h src/utils/stringutils.h src/logger/logger.h
 
 TARGET_UNIT=tests/unit
 OBJ_UNIT=tests/unit.o
@@ -12,7 +13,7 @@ OBJ_UNIT=tests/unit.o
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ_MAIN) $(OBJ)
+$(TARGET): $(OBJ_MAIN) $(OBJ) $(HEADERS)
 	$(CC) -o $@ $^ $(LDLIBS) $(LDFLAGS)
 
 $(TARGET_UNIT): CFLAGS+=-lcriterion -g
