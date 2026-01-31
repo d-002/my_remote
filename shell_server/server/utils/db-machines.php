@@ -1,7 +1,7 @@
 <?php
 function listMachines($db, $username) {
     $st = $db->prepare("
-SELECT machines.*, links.machine_id
+SELECT machines.*, links.name
 FROM machines
 JOIN links
 ON links.machine_id = machines.id
@@ -59,5 +59,26 @@ ORDER BY commands.id ASC");
     }
 
     return $st;
+}
+
+function renameMachine($db, $user_hash, $machine_hash, $name) {
+    $link_id = getUserMachineLink($db, $user_hash, $machine_hash);
+
+    if ($link_id === NULL) {
+        return "Could not find link.";
+    }
+
+    try {
+        $st = $db->prepare("
+UPDATE links
+SET name = :name
+WHERE links.id = :link_id");
+        $st->execute(["name" => $name, "link_id" => $link_id]);
+    }
+    catch (Exception $e) {
+        return "Could not rename machine.";
+    }
+
+    return "";
 }
 ?>

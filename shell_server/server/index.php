@@ -74,6 +74,7 @@ catch (Exception $e) {
             <input type="text" id="shell-input">
         </form>
 
+        <a onclick="renameMachine()">Rename machine</a>
         <a onclick="clearHistory()">Clear history</a>
         <a onclick="deselect()">Deselect machine</a>
     </div>

@@ -56,7 +56,6 @@ CREATE TABLE software (
 CREATE TABLE machines (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     hash TEXT,
-    name TEXT,
     last_heartbeat INTEGER
 )");
     $db->exec("
@@ -64,6 +63,7 @@ CREATE TABLE links (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     machine_id INTEGER,
+    name TEXT,
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(machine_id) REFERENCES machines(id)
 )");

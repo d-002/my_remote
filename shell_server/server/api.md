@@ -5,11 +5,11 @@
 + list linked machines
 + read the state of the connected machines (lower timeout when currently writing
   commands)
++ change machines names
 
-- change machines names
+- clear command history
 - send custom messages to a machine: restart, destroy (as special keywords in a
   command)
-- clear command history
 - delete account and everything related to it
 
 ## machine

@@ -81,10 +81,10 @@ function registerMachine($db, $user, $ip) {
         $db->beginTransaction();
         $st = $db->prepare("
 INSERT INTO machines
-    (hash, name)
+    (hash)
 VALUES
-    (:hash, :ip)");
-        $st->execute(["hash" => $hash, "ip" => $ip]);
+    (:hash)");
+        $st->execute(["hash" => $hash]);
 
         $st = $db->prepare("
 SELECT machines.id
@@ -98,10 +98,10 @@ LIMIT 1");
 
         $st = $db->prepare("
 INSERT INTO links
-    (user_id, machine_id)
+    (user_id, machine_id, name)
 VALUES
-    (:user_id, :machine_id)");
-        $st->execute(["user_id" => $user["id"], "machine_id" => $machine_id]);
+    (:user_id, :machine_id, :ip)");
+        $st->execute(["user_id" => $user["id"], "machine_id" => $machine_id, "ip" => $ip]);
 
         $db->commit();
     }

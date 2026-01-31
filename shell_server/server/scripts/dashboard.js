@@ -37,8 +37,7 @@ function updateShell() {
 
 function showSelection() {
     if (selected.index >= 0) {
-        const name = machinesList.children[selected.index].textContent;
-        info.textContent = "name: " + name + ", hash: " + selected.hash;
+        info.textContent = "hash: " + selected.hash;
     }
 
     let i = 0;
@@ -70,6 +69,28 @@ function sendCommand() {
                 updateShell();
                 command.value = "";
             }
+    });
+}
+
+function renameMachine() {
+    if (selected.index < 0) {
+        alert("error: Please select a machine first.");
+        return;
+    }
+
+    const oldName = machinesList.children[selected.index].textContent;
+    const newName = prompt("Enter new machine name: (previous was '" +
+        oldName + "')");
+
+    fetch("/api/rename_machine.php?user=" + user_hash + "&machine="
+        + selected.hash + "&name=" + newName, text => {
+        if (text.startsWith("error")) {
+            alert(text);
+        }
+        else {
+            machinesList.children[selected.index].textContent = newName;
+            showSelection();
+        }
     });
 }
 
