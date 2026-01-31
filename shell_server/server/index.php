@@ -2,7 +2,7 @@
 require $_SERVER["DOCUMENT_ROOT"] . "/utils/base.php";
 my_include("/utils/db.php");
 my_include("/utils/db-login.php");
-my_include("/utils/db-dashboard.php");
+my_include("/utils/db-machines.php");
 
 session_start();
 

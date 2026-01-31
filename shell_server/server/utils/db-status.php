@@ -22,7 +22,7 @@ function respondHeartbeat($db, $user_hash, $machine_hash, $content) {
     $lines = explode('\n', trim($content));
 
     $status = $lines[0];
-    $command = $lines[1];
+    $machine_version = $lines[1];
     $version = $content;
 
     $software = getSoftware($db, $user_hash);
