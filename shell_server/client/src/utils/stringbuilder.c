@@ -61,6 +61,7 @@ int string_builder_append(struct string_builder *sb, char *s)
 
     memcpy(dst + sb->length, s, (len_add + 1) * sizeof(char));
     sb->data = dst;
+    sb->length += len_add;
 
     return SUCCESS;
 }
@@ -97,9 +98,9 @@ struct string concat_str(char *arr[])
         }
     }
 
-    char *s = string_builder_detach(sb);
     size_t length = sb->length;
+    char *s = string_builder_detach(sb);
     string_builder_destroy(sb);
 
-    return (struct string){ .data = s, .length = length };
+    return (struct string){ .data = s, .length = length, };
 }

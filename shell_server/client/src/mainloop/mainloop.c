@@ -18,7 +18,8 @@ static int heartbeat(struct settings *settings, struct state *state)
         NULL,
     };
     struct string url = concat_str(url_arr);
-    if (url.data == NULL) {
+    if (url.data == NULL)
+    {
         return ERROR;
     }
 
@@ -29,13 +30,19 @@ static int heartbeat(struct settings *settings, struct state *state)
         NULL,
     };
     struct string content = concat_str(content_arr);
-    if (content.data == NULL) {
+    if (content.data == NULL)
+    {
         free(content.data);
         return ERROR;
     }
 
     ssize_t count = sock_request(settings->sock, "POST", url.data, content);
-    log_info("%ld", count);
+    if (count < 0)
+    {
+        return ERROR;
+    }
+
+    debug_print_recv(settings->sock);
 
     return SUCCESS;
 }
@@ -45,7 +52,8 @@ int mainloop(struct settings *settings, struct state *state)
     while (1)
     {
         int res = heartbeat(settings, state);
-        if (res != SUCCESS) {
+        if (res != SUCCESS)
+        {
             return res;
         }
 
