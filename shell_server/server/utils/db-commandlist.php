@@ -45,7 +45,29 @@ WHERE commands.id = (
         $st->execute(["link_id" => $link_id]);
     }
     catch (Exception $e) {
-        return "Could not delete command.";
+        return "Could not read command.";
+    }
+
+    return "";
+}
+
+function clearShell($db, $user_hash, $machine_hash) {
+    $link_id = getUserMachineLink($db, $user_hash, $machine_hash);
+
+    if ($link_id === NULL) {
+        return "Could not find link.";
+    }
+
+    try {
+        $st = $db->prepare("
+DELETE FROM commands
+WHERE commands.link_id = :link_id
+    AND is_user = 0
+    OR is_read = 1");
+        $st->execute(["link_id" => $link_id]);
+    }
+    catch (Exception $e) {
+        return "Could not delete commands.";
     }
 
     return "";

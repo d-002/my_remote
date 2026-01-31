@@ -6,8 +6,9 @@
 + read the state of the connected machines (lower timeout when currently writing
   commands)
 + change machines names
++ clear command history
 
-- clear command history
+- pages styling
 - send custom messages to a machine: restart, destroy (as special keywords in a
   command)
 - delete account and everything related to it

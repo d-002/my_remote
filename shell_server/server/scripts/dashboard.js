@@ -45,14 +45,6 @@ function showSelection() {
         elt => elt.className = i++ == selected.index ? "selected" : "");
 }
 
-function deselect() {
-    selected.index = -1;
-    selected.hash = null;
-
-    showSelection();
-    updateShell();
-}
-
 function sendCommand() {
     if (selected.index < 0) {
         alert("error: Please select a machine first.");
@@ -69,6 +61,23 @@ function sendCommand() {
                 updateShell();
                 command.value = "";
             }
+    });
+}
+
+function clearShell() {
+    if (selected.index < 0) {
+        alert("error: Please select a machine first.");
+        return;
+    }
+
+    fetch("/api/clear_shell.php?user=" + user_hash + "&machine="
+        + selected.hash, text => {
+        if (text.startsWith("error")) {
+            alert(text);
+        }
+        else {
+            updateShell();
+        }
     });
 }
 

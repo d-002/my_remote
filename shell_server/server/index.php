@@ -75,8 +75,7 @@ catch (Exception $e) {
         </form>
 
         <a onclick="renameMachine()">Rename machine</a>
-        <a onclick="clearHistory()">Clear history</a>
-        <a onclick="deselect()">Deselect machine</a>
+        <a onclick="clearShell()">Clear shell history</a>
     </div>
 
 </div>
