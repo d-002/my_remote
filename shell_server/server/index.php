@@ -10,7 +10,8 @@ $db = getDB();
 $logged_in = $_SESSION["username"] !== NULL;
 
 if ($logged_in) {
-    $user_hash = fetchUser($db, $_SESSION["username"])["hash"];
+    $user = fetchUser($db, $_SESSION["username"]);
+    $user_hash = $user["hash"];
 }
 ?>
 
@@ -18,8 +19,16 @@ if ($logged_in) {
 <head>
 <?php
 if (!$logged_in) {
+    // go to login page if not logged in
 ?>
     <meta http-equiv="refresh" content="0; url=/login">
+    <style>#only-logged-in { display: none; }</style>
+<?php
+}
+else if ($user === NULL) {
+    // user got deleted
+?>
+    <meta http-equiv="refresh" content="0; url=/logout">
     <style>#only-logged-in { display: none; }</style>
 <?php
 }
@@ -30,6 +39,7 @@ if (!$logged_in) {
 <body user-hash="<?= $user_hash ?>">
 <div id="only-logged-in">
     <h1>Welcome, <?= $_SESSION["username"] ?></h1>
+    <p>Your user hash: <?= $user_hash ?></p>
     <p>My machines</p>
     <ul id="machines-list">
 <?php

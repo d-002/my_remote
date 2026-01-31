@@ -40,14 +40,9 @@ function registerUser($db, $username, $password) {
 INSERT INTO users
     (username, password, hash)
 VALUES
-    (:username, :password, :hash);
-SELECT users.id
-FROM users
-WHERE users.hash = :hash");
+    (:username, :password, :hash)");
         $st->execute(["username" => $username, "password" => $hash, "hash" => $userHash]);
-        $user_id = $st->fetchColumn();
-        $st->closeCursor();
-        echo $user_id;
+        $user_id = $db->lastInsertId();
 
         $st = $db->prepare("
 INSERT INTO software

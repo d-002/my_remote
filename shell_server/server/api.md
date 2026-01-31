@@ -17,9 +17,9 @@
 + read commands
 + remove user commands from the queue (mark them as read)
 + send back commands
++ send heartbeat with version, get back success, error or the new version and
+  binary
 
-- send heartbeat with state, version, get back success, error or the new version
-  and binary
 - execute commands using a shell and pipe the streams
 - handle custom commands like restart and destroy
 - set state (heartbeat every 10s in idle mode, when receiving a message

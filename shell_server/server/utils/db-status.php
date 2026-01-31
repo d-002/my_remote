@@ -18,39 +18,18 @@ WHERE users.hash = :hash");
     return $line === false ? NULL : $line;
 }
 
-function respondHeartbeat($db, $user_hash, $machine_hash, $content) {
-    $lines = explode('\n', trim($content));
-
-    $status = $lines[0];
-    $machine_version = $lines[1];
-    $version = $content;
-
-    $software = getSoftware($db, $user_hash);
-    if ($software === NULL) {
-        return "error: Could not fetch user software version";
+function updateMachineHeartbeat($db, $machine_hash) {
+    try {
+        $st = $db->prepare("
+UPDATE machines
+SET last_heartbeat = :timestamp
+WHERE machines.hash = :hash");
+        $st->execute(["timestamp" => time(), "hash" => $machine_hash]);
     }
-    $user_version = $software->version;
-
-    if (version_compare($version, $user_version) < 0) {
-        try {
-            $st = $db->prepare("
-SELECT software.version
-FROM software
-JOIN users
-ON software.user_id = users.id
-WHERE users.hash = :hash");
-            $st->execute(["hash" => $user_hash]);
-            $binary = $st->fetch();
-            $st->closeCursor();
-        }
-        catch (Exception $e) {
-            return "error: Could not get user version file";
-        }
-
-        return $user_version . "\n" . $binary;
+    catch (Exception $e) {
+        return "Failed to update machine last heartbeat";
     }
-    else {
-        return "success";
-    }
+
+    return "";
 }
 ?>
