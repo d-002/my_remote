@@ -60,6 +60,8 @@ if (count($_POST) !== 0) {
     if ($redirect) {
     ?>
     <meta http-equiv="refresh" content="0; url=/">
+    <link rel="stylesheet" href="/styles/common.css">
+    <link rel="stylesheet" href="/styles/login.css">
     <?php
     }
     ?>

@@ -34,12 +34,16 @@ else if ($user === NULL) {
 }
 ?>
     <title>shell_server - Dashboard</title>
+
+    <link rel="stylesheet" href="/styles/common.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
 </head>
 
 <body user-hash="<?= $user_hash ?>">
 <div id="only-logged-in">
     <h1>Welcome, <?= $_SESSION["username"] ?></h1>
     <p>Your user hash: <?= $user_hash ?></p>
+    <a href="/logout">Log out</a>
     <p>My machines</p>
     <ul id="machines-list">
 <?php
@@ -52,9 +56,9 @@ try {
             break;
         }
 
-        echo '<li machine-hash="' . $current["hash"] . '">';
+        echo '        <li machine-hash="' . $current["hash"] . '">';
         echo $current["name"];
-        echo "</li>";
+        echo "</li>\n";
     }
     $st->closeCursor();
 }
