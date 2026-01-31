@@ -155,6 +155,10 @@ li::marker {
     margin: .3em 0;
 }
 
+#shell p.pending {
+    color: #957777;
+}
+
 #command-form {
     display: flex;
     align-items: center;

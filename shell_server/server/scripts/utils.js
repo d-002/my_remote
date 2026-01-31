@@ -3,7 +3,7 @@ function fetch(url, callback) {
 
     xhr.open("GET", url, true);
     xhr.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
+        if (this.readyState === 4 && this.status === 200) {
             callback(this.responseText);
         }
     }

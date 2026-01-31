@@ -23,13 +23,37 @@ function updateShell() {
         + selected.hash, text => {
         shell.innerHTML = "";
 
+        if (text.startsWith("error")) {
+            alert(text);
+            return;
+        }
+
         text.split("\n").forEach(line => {
             if (line === "") {
                 return;
             }
 
             const p = document.createElement("p");
-            p.textContent = line;
+
+            const colonIndex = line.indexOf(":");
+            const words = line.substring(0, colonIndex).split(" ");
+            const who = words[0], timestamp = words[1], state = words[2];
+            const message = line.substring(colonIndex + 1);
+
+            let pending = false;
+            if (who === "user") {
+                p.textContent += "$ ";
+                if (state === "pending") {
+                    pending = true;
+                }
+            }
+
+            p.textContent += message;
+            if (pending) {
+                p.className = "pending";
+                p.title = "[not received] ";
+            }
+            p.title += new Date(parseInt(timestamp));
             shell.appendChild(p);
         });
     });
@@ -44,7 +68,7 @@ function updateSelection() {
 
     let i = 0;
     Array.from(machinesList.children).forEach(
-        elt => elt.className = i++ == selected.index ? "selected" : "");
+        elt => elt.className = i++ === selected.index ? "selected" : "");
 }
 
 function sendCommand() {
@@ -108,7 +132,7 @@ function renameMachine() {
 // ===== listeners =====
 
 machinesList.addEventListener("click", evt => {
-    if (evt.target.tagName.toLowerCase() == "li") {
+    if (evt.target.tagName.toUpperCase() === "LI") {
         const children = Array.from(evt.target.parentNode.children);
 
         selected.index = children.indexOf(evt.target);
