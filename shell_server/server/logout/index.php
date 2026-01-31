@@ -10,9 +10,7 @@ session_unset();
     <link rel="stylesheet" href="/styles/common.css">
 </head>
 
-<body>
-    <div class="center-flex">
-        <p>Logging out, please wait...</p>
-    </div>
+<body class="center-flex">
+    <p>Logging out, please wait...</p>
 </body>
 </html>

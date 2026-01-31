@@ -60,24 +60,31 @@ if (count($_POST) !== 0) {
     if ($redirect) {
     ?>
     <meta http-equiv="refresh" content="0; url=/">
-    <link rel="stylesheet" href="/styles/common.css">
-    <link rel="stylesheet" href="/styles/login.css">
     <?php
     }
     ?>
+    <link rel="stylesheet" href="/styles/common.css">
+    <link rel="stylesheet" href="/styles/login.css">
 </head>
-<body>
+<body class="center-flex">
+<div id="main">
     <form method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" value="<?= $username ?>">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password">
+        <div>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="<?= $username ?>">
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password">
+        </div>
 
         <?php
         if ($signup) {
         ?>
-        <label for="confirm-password">Confirm password:</label>
-        <input type="password" id="confirm-password" name="confirm-password">
+        <div>
+            <label for="confirm-password">Confirm password</label>
+            <input type="password" id="confirm-password" name="confirm-password">
+        </div>
         <?php
         }
         ?>
@@ -88,22 +95,24 @@ if (count($_POST) !== 0) {
     <?php
     if ($error !== "") {
     ?>
-    <p class="error"><?= $error ?> </p>
+    <p class="small error"><?= $error ?> </p>
     <?php
     }
     ?>
 
+    <br>
     <?php
     if ($signup) {
     ?>
-    <p>Already have an account?</p><a href="/login">Log in</p>
+    <p class="small">Already have an account?</p><a href="/login">Log in</p>
     <?php
     }
     else {
     ?>
-    <p>Don't have an account?</p><a href="/login?signup">Sign up</p>
+    <p class="small">Don't have an account?</p><a href="/login?signup">Sign up</p>
     <?php
     }
     ?>
+</div>
 </body>
 </html>
