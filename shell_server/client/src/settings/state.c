@@ -41,3 +41,19 @@ void state_sleep(struct state *state)
         break;
     }
 }
+
+char *state_str(struct state *state)
+{
+    static char idle_str[] = "idle";
+    static char active_str[] = "idle";
+
+    switch (state->state)
+    {
+    case IDLE:
+        return idle_str;
+    case ACTIVE:
+        return active_str;
+    }
+
+    return NULL;
+}

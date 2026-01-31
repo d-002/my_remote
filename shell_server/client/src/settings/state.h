@@ -19,6 +19,8 @@ struct state {
 
 struct state *state_create(void);
 void state_destroy(struct state *state);
+
+char *state_str(struct state *state);
 void state_sleep(struct state *state);
 
 #endif /* ! STATE_H */

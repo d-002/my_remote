@@ -4,7 +4,7 @@
 #include <netdb.h>
 #include <stddef.h>
 
-#include "stringutils.h"
+#include "stringbuilder.h"
 
 struct sock
 {
