@@ -19,6 +19,8 @@
 + send back commands
 + send heartbeat with version, get back success, error or the new version and
   binary
++ installer: ask for url, login, fetch the hashes and copy them to files, fetch
+  the binary code from the server and run it.
 
 - execute commands using a shell and pipe the streams
 - handle custom commands like restart and destroy
