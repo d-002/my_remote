@@ -94,10 +94,11 @@ catch (Exception $e) {
 
     <h3>Actions</h3>
     <div id="actions">
-        <a onclick="restartmachine()">Restart machine</a>
-        <a onclick="destroylink()">Destroy machine and link</a>
-        <a onclick="clearshell()">Clear shell history</a>
         <a onclick="renameMachine()">Rename machine</a>
+        <a onclick="restartMachine()">Restart machine</a>
+        <a onclick="clearShell()">Clear shell history</a>
+        <a onclick="destroyMachine()">Ask for machine destruction</a>
+        <a onclick="destroyLink()">Destroy link to machine</a>
     </div>
 </div>
 </div>
