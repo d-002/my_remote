@@ -1,9 +1,18 @@
 #include <stdio.h>
 
+#include "settings/settings.h"
 #include "utils/sockutils.h"
 
 int main(void)
 {
+    struct settings *settings = settings_create();
+    if (settings == NULL) {
+        return 1;
+    }
+
+    settings_destroy(settings);
+    return 0;
+    /*
     struct sock *sock = sock_create("localhost", "8080");
     if (sock == NULL)
     {
@@ -18,4 +27,5 @@ int main(void)
 
     sock_destroy(sock);
     return res;
+    */
 }

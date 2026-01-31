@@ -11,6 +11,8 @@
 
 - send custom messages to a machine: restart, destroy (as special keywords in a
   command)
+- get machine state easily using an api call
+- update machines data etc periodically
 
 ## machine
 + register and attach to user
@@ -22,6 +24,7 @@
 + installer: ask for url, login, fetch the hashes and copy them to files, fetch
   the binary code from the server and run it.
 
+- execute simple commands, handle and listen for api calls
 - execute commands using a shell and pipe the streams
 - handle custom commands like restart and destroy
 - set state (heartbeat every 10s in idle mode, when receiving a message

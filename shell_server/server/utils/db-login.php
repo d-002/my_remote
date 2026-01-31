@@ -32,7 +32,7 @@ function registerUser($db, $username, $password) {
         return "Could not read current software binary.";
     }
 
-    $userHash = hash("sha256", $username . microtime());
+    $userHash = hash("sha1", $username . microtime());
 
     try {
         $db->beginTransaction();
@@ -75,7 +75,7 @@ function loginUser($db, $username, $password) {
 }
 
 function registerMachine($db, $user, $ip) {
-    $hash = hash("sha256", $user["username"] . microtime());
+    $hash = hash("sha1", $user["username"] . microtime());
 
     try {
         $db->beginTransaction();

@@ -11,7 +11,6 @@ def check_server(url):
         print('Make sure you specify the protocol (http / https) before the URL.')
         return False
     except requests.exceptions.ConnectionError:
-        sdf
         return False
 
 def decode_and_handle_error(content, is_binary):

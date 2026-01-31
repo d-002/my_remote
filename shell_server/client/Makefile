@@ -3,8 +3,12 @@ CPPFLAGS=-Isrc
 
 TARGET=shell_client
 OBJ_MAIN=src/main.o
-OBJ=src/utils/sockutils.o src/logger/logger.o
-HEADERS=src/utils/sockutils.h src/utils/macros.h src/utils/stringutils.h src/logger/logger.h
+OBJ=src/utils/sockutils.o \
+	src/logger/logger.o \
+	src/settings/settings.o
+HEADERS=src/utils/sockutils.h src/utils/macros.h src/utils/stringutils.h \
+	src/logger/logger.h \
+	src/settings/settings.h
 
 TARGET_UNIT=tests/unit
 OBJ_UNIT=tests/unit.o
