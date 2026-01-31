@@ -15,6 +15,9 @@
 struct sock *sock_request(struct settings *settings, char *request_type, char *path, struct string content)
 {
     struct sock *sock = sock_create(settings->host, settings->port);
+    if (sock == NULL) {
+        return NULL;
+    }
 
     char headers[HEADERS_SIZE];
 

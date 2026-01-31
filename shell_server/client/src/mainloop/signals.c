@@ -44,8 +44,8 @@ int setup_signals(struct settings *settings)
         return FATAL;
     if (sigaction(SIGPIPE, &sa, NULL) < 0)
         return FATAL;
-    if (sigaction(SIGINT, &sa, NULL) < 0)
-        return FATAL;
+    //if (sigaction(SIGINT, &sa, NULL) < 0)
+    //    return FATAL;
 
     return SUCCESS;
 }

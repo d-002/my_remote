@@ -4,6 +4,8 @@
 #include <stdbool.h>
 
 struct settings {
+    char *argv0;
+
     char *host;
     char *port;
     char *user_hash;

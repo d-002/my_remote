@@ -1,18 +1,43 @@
 #include "mainloop.h"
 
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "logger/logger.h"
+#include "sock/sock.h"
 #include "sock/sockutils.h"
 #include "utils/errors.h"
 #include "utils/stringbuilder.h"
 
 static int apply_patch(struct settings *settings, struct string patch)
 {
-    settings++; /////
-    patch.data++; /////
+    log_info("New version detected, applying...");
+    patch.data++;
 
-    return SUCCESS;
+    log_info("Restarting in a new process...");
+    int pid = fork();
+
+    if (pid < 0)
+    {
+        log_info("Failed to start new process.");
+        return ERROR;
+    }
+    if (pid == 0)
+    {
+        char *argv[] = {
+            settings->argv0,
+            NULL,
+        };
+
+        execvp(argv[0], argv);
+
+        log_info("Should not happen.");
+        return ERROR;
+    }
+    else
+    {
+        return EXIT;
+    }
 }
 
 static int heartbeat(struct settings *settings, struct state *state)
@@ -22,7 +47,7 @@ static int heartbeat(struct settings *settings, struct state *state)
     struct string url = NULL_STRING;
     struct string content = NULL_STRING;
     struct string response = NULL_STRING;
-    int if_err = ERROR;
+    int which_err = ERROR;
 
     char *url_arr[] = {
         "/api/heartbeat.php?user=",
@@ -34,7 +59,7 @@ static int heartbeat(struct settings *settings, struct state *state)
     url = concat_str(url_arr);
     if (url.data == NULL)
     {
-        if_err = FATAL;
+        which_err = FATAL;
         goto error;
     }
 
@@ -47,7 +72,7 @@ static int heartbeat(struct settings *settings, struct state *state)
     content = concat_str(content_arr);
     if (content.data == NULL)
     {
-        if_err = FATAL;
+        which_err = FATAL;
         goto error;
     }
 
@@ -63,7 +88,6 @@ static int heartbeat(struct settings *settings, struct state *state)
         goto error;
     }
 
-    log_info("'%s'", response.data);
     if (STRSTARTSWITH(response.data, "error"))
     {
         log_error("%s", response.data);
@@ -80,11 +104,12 @@ static int heartbeat(struct settings *settings, struct state *state)
         int res = apply_patch(settings, patch);
         if (res != SUCCESS)
         {
-            if_err = res;
+            which_err = res;
             goto error;
         }
     }
 
+    sock_destroy(sock);
     STRING_FREE(url);
     STRING_FREE(content);
     STRING_FREE(response);
@@ -92,11 +117,12 @@ static int heartbeat(struct settings *settings, struct state *state)
     return SUCCESS;
 
 error:
+    sock_destroy(sock);
     STRING_FREE(url);
     STRING_FREE(content);
     STRING_FREE(response);
 
-    return if_err;
+    return which_err;
 }
 
 int mainloop(struct settings *settings, struct state *state)
@@ -104,7 +130,7 @@ int mainloop(struct settings *settings, struct state *state)
     while (true)
     {
         int res = heartbeat(settings, state);
-        if (res == FATAL)
+        if (res == FATAL || res == EXIT)
         {
             return res;
         }

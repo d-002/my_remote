@@ -1,5 +1,6 @@
 #include <stddef.h>
 
+#include "logger/logger.h"
 #include "mainloop/mainloop.h"
 #include "mainloop/signals.h"
 #include "settings/settings.h"
@@ -25,6 +26,12 @@ int main(int argc, char *argv[])
     }
 
     res = mainloop(settings, state);
+
+    if (res == EXIT)
+    {
+        log_info("Graceful exit.");
+        res = SUCCESS;
+    }
 
 end:
     settings_destroy(settings);

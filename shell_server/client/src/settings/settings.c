@@ -59,6 +59,7 @@ struct settings *settings_create(int argc, char *argv[])
         return NULL;
     }
 
+    settings->argv0 = argv[0];
     settings->port = port;
     settings->host = host;
     settings->user_hash = user_hash;
