@@ -55,8 +55,7 @@ def get_hashes(content):
 
     return user_hash, machine_hash
 
-#url = input('Enter the URL to the server: ')
-url = 'http://127.0.0.1:8080'
+url = input('Enter the URL to the server: ')
 url = url.rstrip('/')
 
 print('Checking whether the server is accessible...')
@@ -70,9 +69,8 @@ else:
 print('You now need to log into the server. '
       'Make sure you created an user there first.')
 
-#username = input('Username: ')
-#password = getpass('Password: ')
-username, password = 'test', 'test1234'
+username = input('Username: ')
+password = getpass('Password: ')
 
 print('Logging in, retrieving user and machine hashes...')
 content = get_file(url + '/api/new_machine.php?username=' + username
