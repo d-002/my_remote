@@ -1,4 +1,6 @@
 <?php
+ob_start();
+
 require $_SERVER["DOCUMENT_ROOT"] . "/utils/base.php";
 my_include("/utils/db.php");
 my_include("/utils/db-commandlist.php");
@@ -30,4 +32,8 @@ else {
 
     $st->closeCursor();
 }
+
+$size = ob_get_length();
+ob_end_flush();
+header("Content-Length: " . $size);
 ?>
