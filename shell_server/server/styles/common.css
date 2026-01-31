@@ -4,6 +4,10 @@
     font-display: swap;
 }
 
+* {
+    font-size: 1rem;
+}
+
 body, html {
     margin: 0;
     width: 100%;
@@ -11,16 +15,20 @@ body, html {
 
     --bg1: #f9fafb;
     --bg2: #ffffff;
+    --bg3: #d5dbe5;
+    --bgspecial: #556084;
     --fg1: #1f1e1e;
     --fg2: #656565;
+    --fgspecial: #f0f7fd;
     --link: #3971a5;
+
+    font-size: 24px;
 }
 
 body, input {
     background-color: var(--bg1);
     color: var(--fg1);
 
-    font-size: 20px;
     font-family: "roboto", calibri, sans-serif;
 }
 
@@ -31,6 +39,10 @@ body.center-flex {
 
     width: 100%;
     height: 100%;
+}
+
+p {
+    font-size: 1.5rem;
 }
 
 p.small {
@@ -53,4 +65,9 @@ a {
 
 a:not(.button):hover {
     text-decoration: underline;
+}
+
+code {
+    font-size: 1rem;
+    font-family: consolas, monospace;
 }

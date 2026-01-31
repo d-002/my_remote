@@ -100,7 +100,6 @@ if (count($_POST) !== 0) {
     }
     ?>
 
-    <br>
     <?php
     if ($signup) {
     ?>

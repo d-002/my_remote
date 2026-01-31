@@ -1,0 +1,116 @@
+body:not([user-hash]) {
+    color: red;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+#header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 1rem;
+
+    background-color: var(--bgspecial);
+    color: var(--fgspecial);
+}
+
+@media (max-width: 600px) {
+    #header div:nth-child(2), #header-after {
+        display: none;
+    }
+}
+
+#header h1 {
+    font-size: 2.5rem;
+}
+
+#header a {
+    color: var(--fgspecial);
+}
+
+#header-after {
+    position: absolute;
+    bottom: .2em;
+    left: .2em;
+
+    margin: 0;
+
+    filter: opacity(50%);
+    font-size: .6em;
+}
+
+#main {
+    flex-grow: 1;
+}
+
+@media (min-width: 600px) {
+    #main {
+        display: flex;
+    }
+
+    #left {
+        max-width: 300px;
+    }
+}
+
+#left {
+    overflow: auto unset;
+
+    flex: 1;
+
+    padding: .5em 1.5em;
+
+    background-color: var(--bg3);
+    box-shadow: 0 0 10px #00000040;
+}
+
+#left h2 {
+    font-size: 2rem;
+}
+
+ul {
+    padding: 0;
+}
+
+li {
+    box-sizing: border-box;
+    width: 100%;
+    margin: .7em 0;
+    padding: .5em;
+
+    border: 2px solid var(--bg3);
+    border-radius: .6em;
+    --bgcol: #8798ba;
+    background-color: var(--bgcol);
+    color: var(--bg1);
+}
+
+li.selected {
+    --bgcol: #4065ac;
+
+    box-shadow: 0 0 20px #3763b830;
+}
+
+li:is(:hover, .selected) {
+    cursor: pointer;
+    border: 2px solid var(--bgcol);
+}
+
+li::marker {
+    content: none;
+}
+
+#right {
+    flex: 1;
+
+    padding: .5em 1.5em;
+}
+
+#right h3 {
+    font-size: 1.5rem;
+}

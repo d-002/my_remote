@@ -4,16 +4,16 @@ div#main {
     align-items: center;
     gap: .5rem;
 
-    padding: 2rem;
+    padding: 1.2rem;
 
     background-color: var(--bg2);
     border: 1px solid #00000010;
-    border-radius: 1.5rem;
+    border-radius: 1rem;
     box-shadow: 0 0 20px #0000000a;
 }
 
 label {
-    font-size: .8em;
+    font-size: .8rem;
 }
 
 form {
@@ -21,6 +21,7 @@ form {
     flex-direction: column;
     align-items: center;
 
+    margin: 0;
 }
 
 form>div {
@@ -28,7 +29,7 @@ form>div {
     align-items: center;
 
     width: 100%;
-    margin: .5rem 0;
+    margin: .3rem 0;
     padding: 0 1rem;
 }
 
@@ -50,6 +51,8 @@ input:not([type="submit"]) {
     padding: .2em;
     border: 1px solid #00000020;
     border-radius: .3em;
+
+    font-size: .8em;
 }
 
 input[type="submit"] {
@@ -57,11 +60,12 @@ input[type="submit"] {
     min-width: fit-content;
 
     margin: .5em 0;
-    padding: .5em .3em;
+    padding: .3em .2em;
     border: 3px solid transparent;
     border-radius: 10em;
 
     background-color: #aebac1;
+    font-size: .9em;
     color: var(--bg1);
 }
 
@@ -70,4 +74,8 @@ input[type="submit"]:hover {
 
     border: 3px solid #00000020;
     color: var(--bg2);
+}
+
+a {
+    height: 1.5em;
 }

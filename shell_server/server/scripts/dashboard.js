@@ -7,7 +7,7 @@ const shell = document.getElementById("shell");
 const command = document.getElementById("shell-input");
 
 const selected = {
-    index: -1, // < 0 when nothing is selected
+    index: 0, // < 0 when nothing is selected
     hash: null,
 };
 
@@ -35,9 +35,11 @@ function updateShell() {
     });
 }
 
-function showSelection() {
+function updateSelection() {
     if (selected.index >= 0) {
-        info.textContent = "hash: " + selected.hash;
+        const elt = machinesList.children[selected.index];
+        selected.hash = elt.getAttribute("machine-hash");
+        info.innerHTML = "hash: <code>" + selected.hash + "</code>";
     }
 
     let i = 0;
@@ -98,7 +100,7 @@ function renameMachine() {
         }
         else {
             machinesList.children[selected.index].textContent = newName;
-            showSelection();
+            updateSelection();
         }
     });
 }
@@ -109,17 +111,13 @@ machinesList.addEventListener("click", evt => {
     if (evt.target.tagName.toLowerCase() == "li") {
         const children = Array.from(evt.target.parentNode.children);
 
-        // update selection variable
         selected.index = children.indexOf(evt.target);
-        selected.hash = evt.target.getAttribute("machine-hash");
-
-        // update selection visually
-        showSelection();
+        updateSelection();
         updateShell();
     }
 });
 
 // ===== main =====
 
-showSelection();
+updateSelection();
 updateShell();

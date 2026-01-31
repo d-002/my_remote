@@ -22,14 +22,12 @@ if (!$logged_in) {
     // go to login page if not logged in
 ?>
     <meta http-equiv="refresh" content="0; url=/login">
-    <style>#only-logged-in { display: none; }</style>
 <?php
 }
 else if ($user === NULL) {
     // user got deleted
 ?>
     <meta http-equiv="refresh" content="0; url=/logout">
-    <style>#only-logged-in { display: none; }</style>
 <?php
 }
 ?>
@@ -40,11 +38,25 @@ else if ($user === NULL) {
 </head>
 
 <body user-hash="<?= $user_hash ?>">
-<div id="only-logged-in">
-    <h1>Welcome, <?= $_SESSION["username"] ?></h1>
-    <p>Your user hash: <?= $user_hash ?></p>
-    <a href="/logout">Log out</a>
-    <p>My machines</p>
+
+<div id="header">
+    <div>
+    </div>
+
+    <div>
+        <h1>Welcome, <?= $_SESSION["username"] ?></h1>
+    </div>
+
+    <div>
+        <a href="/logout">Log out</a>
+    </div>
+
+    <p id="header-after">Your user hash: <?= $user_hash ?></p>
+</div>
+
+<div id="main">
+<div id="left">
+    <h2>My machines</h2>
     <ul id="machines-list">
 <?php
 try {
@@ -67,22 +79,23 @@ catch (Exception $e) {
 }
 ?>
     </ul>
-
-    <div id="selected-machine">
-        <p>Selected machine</p>
-        <p id="selected-machine-info"</p>
-        <p>Shell</p>
-        <div id="shell"></div>
-        <form action="javascript:sendCommand()">
-            <label for="shell-input">$</label>
-            <input type="text" id="shell-input">
-        </form>
-
-        <a onclick="renameMachine()">Rename machine</a>
-        <a onclick="clearShell()">Clear shell history</a>
-    </div>
-
 </div>
+
+<div id="right">
+    <h3>Selected machine</h3>
+    <p id="selected-machine-info"</p>
+    <h3>Shell</h3>
+    <div id="shell"></div>
+    <form action="javascript:sendCommand()">
+        <label for="shell-input">$</label>
+        <input type="text" id="shell-input">
+    </form>
+
+    <a onclick="renameMachine()">Rename machine</a>
+    <a onclick="clearShell()">Clear shell history</a>
+</div>
+</div>
+
 </body>
 
 <script src="/scripts/utils.js"></script>
