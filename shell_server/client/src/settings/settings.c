@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "logger/logger.h"
-#include "utils/macros.h"
 
 #define BUF_SIZE 1024
 

@@ -3,10 +3,11 @@
 #include <stdlib.h>
 
 #include "logger/logger.h"
-#include "utils/macros.h"
+#include "utils/errors.h"
 #include "utils/sockutils.h"
 
-static int apply_patch(struct settings *settings, struct string patch) {
+static int apply_patch(struct settings *settings, struct string patch)
+{
     settings++; /////
     patch.data++; /////
 
@@ -17,6 +18,11 @@ static int heartbeat(struct settings *settings, struct state *state)
 {
     log_verbose(settings->verbose, "Heartbeat.");
 
+    struct string url = NULL_STRING;
+    struct string content = NULL_STRING;
+    struct string response = NULL_STRING;
+    int if_err = ERROR;
+
     char *url_arr[] = {
         "/api/heartbeat.php?user=",
         settings->user_hash,
@@ -24,10 +30,11 @@ static int heartbeat(struct settings *settings, struct state *state)
         settings->machine_hash,
         NULL,
     };
-    struct string url = concat_str(url_arr);
+    url = concat_str(url_arr);
     if (url.data == NULL)
     {
-        return ERROR;
+        if_err = FATAL;
+        goto error;
     }
 
     char *content_arr[] = {
@@ -36,28 +43,30 @@ static int heartbeat(struct settings *settings, struct state *state)
         settings->version,
         NULL,
     };
-    struct string content = concat_str(content_arr);
+    content = concat_str(content_arr);
     if (content.data == NULL)
     {
-        STRING_FREE(content);
-        return ERROR;
+        if_err = FATAL;
+        goto error;
     }
 
     ssize_t count = sock_request(settings->sock, "POST", url.data, content);
     if (count < 0)
     {
-        return ERROR;
+        goto error;
     }
 
-    struct string response = recv_content(settings->sock);
+    response = recv_content(settings->sock);
     if (response.data == NULL)
     {
-        return ERROR;
+        goto error;
     }
 
+    log_info("'%s'", response.data);
     if (STRSTARTSWITH(response.data, "error"))
     {
         log_error("%s", response.data);
+        goto error;
     }
     else if (STRSTARTSWITH(response.data, "update"))
     {
@@ -67,20 +76,34 @@ static int heartbeat(struct settings *settings, struct state *state)
             .length = response.length - offset,
         };
 
-        apply_patch(settings, patch);
+        int res = apply_patch(settings, patch);
+        if (res != SUCCESS)
+        {
+            if_err = res;
+            goto error;
+        }
     }
 
+    STRING_FREE(url);
+    STRING_FREE(content);
     STRING_FREE(response);
 
     return SUCCESS;
+
+error:
+    STRING_FREE(url);
+    STRING_FREE(content);
+    STRING_FREE(response);
+
+    return if_err;
 }
 
 int mainloop(struct settings *settings, struct state *state)
 {
-    while (1)
+    while (true)
     {
         int res = heartbeat(settings, state);
-        if (res != SUCCESS)
+        if (res == FATAL)
         {
             return res;
         }

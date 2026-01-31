@@ -3,10 +3,10 @@ CPPFLAGS=-Isrc
 
 TARGET=shell_client
 OBJ_MAIN=src/main.o
-OBJ=src/utils/sockutils.o src/utils/stringbuilder.o \
+OBJ=src/utils/sockutils.o src/utils/stringutils.o src/utils/stringbuilder.o \
 	src/logger/logger.o \
 	src/settings/settings.o src/settings/state.o \
-	src/mainloop/mainloop.o
+	src/mainloop/mainloop.o src/mainloop/signals.o
 
 TARGET_UNIT=tests/unit
 OBJ_UNIT=tests/unit.o

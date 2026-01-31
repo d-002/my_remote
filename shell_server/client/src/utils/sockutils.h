@@ -25,6 +25,7 @@ void sock_destroy(struct sock *sock);
 ssize_t sock_request(struct sock *sock, char *request_type, char *path,
                      struct string content);
 
-int debug_print_recv(struct sock *sock);
+// will be assuming the request newlines are correctly formatted
+struct string recv_content(struct sock *sock);
 
 #endif /* ! SOCKUTILS_H */

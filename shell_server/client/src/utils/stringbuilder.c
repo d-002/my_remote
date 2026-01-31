@@ -4,13 +4,14 @@
 #include <string.h>
 
 #include "logger/logger.h"
-#include "utils/macros.h"
+#include "utils/errors.h"
 
 struct string_builder *string_builder_create(char *s)
 {
     struct string_builder *sb = malloc(sizeof(struct string_builder));
     if (sb == NULL)
     {
+        log_alloc_error();
         return NULL;
     }
 
@@ -56,7 +57,7 @@ int string_builder_append(struct string_builder *sb, char *s)
     if (dst == NULL)
     {
         log_alloc_error();
-        return ERROR;
+        return FATAL;
     }
 
     memcpy(dst + sb->length, s, (len_add + 1) * sizeof(char));
@@ -66,9 +67,13 @@ int string_builder_append(struct string_builder *sb, char *s)
     return SUCCESS;
 }
 
-char *string_builder_detach(struct string_builder *sb)
+struct string string_builder_detach(struct string_builder *sb)
 {
-    char *s = sb->data;
+    struct string s = {
+        .data = sb->data,
+        .length = sb->length,
+    };
+
     sb->data = NULL;
     sb->length = 0;
 
@@ -98,9 +103,13 @@ struct string concat_str(char *arr[])
         }
     }
 
-    size_t length = sb->length;
-    char *s = string_builder_detach(sb);
+    return string_builder_free_to_string(sb);
+}
+
+struct string string_builder_free_to_string(struct string_builder *sb)
+{
+    struct string s = string_builder_detach(sb);
     string_builder_destroy(sb);
 
-    return (struct string){ .data = s, .length = length, };
+    return s;
 }

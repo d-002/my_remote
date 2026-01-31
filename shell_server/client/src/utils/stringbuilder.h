@@ -1,20 +1,8 @@
 #ifndef STRINGBUILDER_H
 #define STRINGBUILDER_H
 
-#include <stddef.h>
-#include <string.h>
+#include "stringutils.h"
 
-#define NULL_STRING ((struct string){ .data = NULL, .length = 0 })
-#define STRING_FREE(string) free((string).data);
-
-// made to combine a string and its length
-struct string
-{
-    char *data;
-    size_t length;
-};
-
-// made to grow
 struct string_builder
 {
     char *data;
@@ -25,8 +13,9 @@ struct string_builder *string_builder_create(char *s);
 void string_builder_destroy(struct string_builder *sb);
 
 int string_builder_append(struct string_builder *sb, char *s);
-char *string_builder_detach(struct string_builder *sb);
+struct string string_builder_detach(struct string_builder *sb);
 
 struct string concat_str(char *arr[]);
+struct string string_builder_free_to_string(struct string_builder *sb);
 
 #endif /* ! STRINGBUILDER_H */
