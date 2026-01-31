@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "utils/macros.h"
 #include "logger/logger.h"
+#include "utils/macros.h"
 
 #define BUF_SIZE 1024
 
@@ -43,29 +43,47 @@ struct settings *settings_create(int argc, char *argv[])
         return NULL;
     }
 
-    char *user_hash = file_to_string("user_hash");
-    char *machine_hash = file_to_string("machine_hash");
-    char *version = file_to_string("version");
-    if (user_hash == NULL || machine_hash == NULL || version == NULL)
+    char *host = file_to_string("host");
+    char *port = file_to_string("port");
+
+    if (port == NULL || host == NULL)
     {
-        free(user_hash);
-        free(machine_hash);
-        free(version);
+        free(settings);
+        free(port);
+        free(host);
         return NULL;
     }
 
+    struct sock *sock = sock_create(host, port);
+    free(port);
+    free(host);
+    char *user_hash = file_to_string("user_hash");
+    char *machine_hash = file_to_string("machine_hash");
+    char *version = file_to_string("version");
+    if (sock == NULL || user_hash == NULL || machine_hash == NULL
+        || version == NULL)
+    {
+        sock_destroy(sock);
+        free(user_hash);
+        free(machine_hash);
+        free(version);
+        free(settings);
+        return NULL;
+    }
+
+    settings->sock = sock;
     settings->user_hash = user_hash;
     settings->machine_hash = machine_hash;
     settings->version = version;
 
-    for (int i = 1; i < argc; i++) {
-        if (STREQL(argv[i], "-v")) {
+    for (int i = 1; i < argc; i++)
+    {
+        if (STREQL(argv[i], "-v"))
+        {
             settings->verbose = true;
-            log_verbose(true, "Running in verbose mode");
+            log_verbose(true, "Running in verbose mode.");
         }
     }
-
-    printf("'%s' '%s' '%s'\n", user_hash, machine_hash, version);
 
     return settings;
 }
@@ -77,6 +95,7 @@ void settings_destroy(struct settings *settings)
         return;
     }
 
+    sock_destroy(settings->sock);
     free(settings->user_hash);
     free(settings->machine_hash);
     free(settings->version);

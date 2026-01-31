@@ -167,7 +167,7 @@ int debug_print_recv(struct sock *sock)
         if (count < 0)
         {
             log_error("Failed to receive in debug print.");
-            return 1;
+            return ERROR;
         }
         if (count == 0)
         {
@@ -212,5 +212,5 @@ int debug_print_recv(struct sock *sock)
     }
     putchar('\n');
 
-    return 0;
+    return SUCCESS;
 }

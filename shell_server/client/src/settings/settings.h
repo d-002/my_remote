@@ -3,7 +3,11 @@
 
 #include <stdbool.h>
 
+#include "utils/sockutils.h"
+
 struct settings {
+    struct sock *sock;
+
     char *user_hash;
     char *machine_hash;
     char *version;

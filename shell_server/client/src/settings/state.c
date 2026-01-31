@@ -1,6 +1,7 @@
 #include "state.h"
 
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "logger/logger.h"
 
@@ -26,4 +27,17 @@ void state_destroy(struct state *state)
         return;
     }
     free(state);
+}
+
+void state_sleep(struct state *state)
+{
+    switch (state->state)
+    {
+    case IDLE:
+        sleep(SLEEP_IDLE);
+        break;
+    case ACTIVE:
+        sleep(SLEEP_ACTIVE);
+        break;
+    }
 }
