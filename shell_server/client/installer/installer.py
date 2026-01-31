@@ -1,17 +1,21 @@
 import os
 import requests
 import subprocess
+from urllib.parse import urlparse
 from getpass import getpass
 
 def check_server(url):
     try:
-        x = requests.head(url)
-        return x.ok
+        x = requests.head(url, stream=True)
+        if x.ok:
+            parsed = urlparse(x.url)
+            return True, parsed.hostname, parsed.port if parsed.port else '80'
+        return False, None, None
     except requests.exceptions.MissingSchema:
         print('Make sure you specify the protocol (http / https) before the URL.')
-        return False
+        return False, None, None
     except requests.exceptions.ConnectionError:
-        return False
+        return False, None, None
 
 def decode_and_handle_error(content, is_binary):
     if not is_binary:
@@ -54,11 +58,11 @@ def get_hashes(content):
 
     return user_hash, machine_hash
 
-url = input('Enter the URL to the server: ')
+url = input('Enter the URL (and port if needed) to the server: ')
 url = url.rstrip('/')
 
 print('Checking whether the server is accessible...')
-ok = check_server(url)
+ok, host, port = check_server(url)
 if ok:
     print('Success.')
 else:
@@ -77,13 +81,17 @@ content = get_file(url + '/api/new_machine.php?username=' + username
 
 user_hash, machine_hash = get_hashes(content)
 
-print('Creating directory, storing hashes in files...')
+print('Creating directory, storing hashes and server settings in files...')
 store_dir = 'shell_server_machine_' + machine_hash
 os.makedirs(store_dir, exist_ok=True)
 with open(os.path.join(store_dir, 'user_hash'), 'w') as f:
     f.write(user_hash)
 with open(os.path.join(store_dir, 'machine_hash'), 'w') as f:
     f.write(machine_hash)
+with open(os.path.join(store_dir, 'host'), 'w') as f:
+    f.write(host)
+with open(os.path.join(store_dir, 'port'), 'w') as f:
+    f.write(str(port))
 
 print('Downloading binary and getting version...')
 binary = post_file(url + '/api/heartbeat.php?user=' + user_hash + "&machine="
