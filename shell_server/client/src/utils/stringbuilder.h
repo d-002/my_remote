@@ -5,6 +5,7 @@
 #include <string.h>
 
 #define NULL_STRING ((struct string){ .data = NULL, .length = 0 })
+#define STRING_FREE(string) free((string).data);
 
 // made to combine a string and its length
 struct string

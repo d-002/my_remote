@@ -6,6 +6,13 @@
 #include "utils/macros.h"
 #include "utils/sockutils.h"
 
+static int apply_patch(struct settings *settings, struct string patch) {
+    settings++; /////
+    patch.data++; /////
+
+    return SUCCESS;
+}
+
 static int heartbeat(struct settings *settings, struct state *state)
 {
     log_verbose(settings->verbose, "Heartbeat.");
@@ -32,7 +39,7 @@ static int heartbeat(struct settings *settings, struct state *state)
     struct string content = concat_str(content_arr);
     if (content.data == NULL)
     {
-        free(content.data);
+        STRING_FREE(content);
         return ERROR;
     }
 
@@ -42,7 +49,28 @@ static int heartbeat(struct settings *settings, struct state *state)
         return ERROR;
     }
 
-    debug_print_recv(settings->sock);
+    struct string response = recv_content(settings->sock);
+    if (response.data == NULL)
+    {
+        return ERROR;
+    }
+
+    if (STRSTARTSWITH(response.data, "error"))
+    {
+        log_error("%s", response.data);
+    }
+    else if (STRSTARTSWITH(response.data, "update"))
+    {
+        size_t offset = strlen("update\n");
+        struct string patch = {
+            .data = response.data + offset,
+            .length = response.length - offset,
+        };
+
+        apply_patch(settings, patch);
+    }
+
+    STRING_FREE(response);
 
     return SUCCESS;
 }
