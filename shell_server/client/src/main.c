@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include "mainloop/mainloop.h"
 #include "mainloop/signals.h"
 #include "settings/settings.h"

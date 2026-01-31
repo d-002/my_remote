@@ -3,8 +3,9 @@
 #include <stdlib.h>
 
 #include "logger/logger.h"
+#include "sock/sockutils.h"
 #include "utils/errors.h"
-#include "utils/sockutils.h"
+#include "utils/stringbuilder.h"
 
 static int apply_patch(struct settings *settings, struct string patch)
 {
@@ -50,13 +51,13 @@ static int heartbeat(struct settings *settings, struct state *state)
         goto error;
     }
 
-    ssize_t count = sock_request(settings->sock, "POST", url.data, content);
-    if (count < 0)
+    struct sock *sock = sock_request(settings, "POST", url.data, content);
+    if (sock == NULL)
     {
         goto error;
     }
 
-    response = recv_content(settings->sock);
+    response = recv_content(sock);
     if (response.data == NULL)
     {
         goto error;

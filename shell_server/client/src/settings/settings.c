@@ -2,9 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "logger/logger.h"
+#include "utils/stringutils.h"
 
 #define BUF_SIZE 1024
 
@@ -44,25 +44,14 @@ struct settings *settings_create(int argc, char *argv[])
 
     char *host = file_to_string("host");
     char *port = file_to_string("port");
-
-    if (port == NULL || host == NULL)
-    {
-        free(settings);
-        free(port);
-        free(host);
-        return NULL;
-    }
-
-    struct sock *sock = sock_create(host, port);
-    free(port);
-    free(host);
     char *user_hash = file_to_string("user_hash");
     char *machine_hash = file_to_string("machine_hash");
     char *version = file_to_string("version");
-    if (sock == NULL || user_hash == NULL || machine_hash == NULL
-        || version == NULL)
+    if (host == NULL || port == NULL || user_hash == NULL
+        || machine_hash == NULL || version == NULL)
     {
-        sock_destroy(sock);
+        free(host);
+        free(port);
         free(user_hash);
         free(machine_hash);
         free(version);
@@ -70,7 +59,8 @@ struct settings *settings_create(int argc, char *argv[])
         return NULL;
     }
 
-    settings->sock = sock;
+    settings->port = port;
+    settings->host = host;
     settings->user_hash = user_hash;
     settings->machine_hash = machine_hash;
     settings->version = version;
@@ -94,7 +84,8 @@ void settings_destroy(struct settings *settings)
         return;
     }
 
-    sock_destroy(settings->sock);
+    free(settings->host);
+    free(settings->port);
     free(settings->user_hash);
     free(settings->machine_hash);
     free(settings->version);

@@ -1,102 +1,21 @@
-#ifndef _POSIX_C_SOURCE
-#    define _POSIX_C_SOURCE 200112L
-#endif /* ! _POSIX_C_SOURCE */
-
 #include "sockutils.h"
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/socket.h>
-#include <unistd.h>
 
-#include "errors.h"
+#include "sock.h"
+#include "utils/errors.h"
+#include "utils/stringbuilder.h"
 #include "logger/logger.h"
 
 #define HEADERS_SIZE 1024
 #define LINE_SIZE 128
 
-struct sock *sock_create(char *host, char *port)
+struct sock *sock_request(struct settings *settings, char *request_type, char *path, struct string content)
 {
-    int fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd == -1)
-    {
-        log_error("Failed to create socket.");
-        return NULL;
-    }
+    struct sock *sock = sock_create(settings->host, settings->port);
 
-    struct addrinfo hints;
-    struct addrinfo *info;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-
-    int status = getaddrinfo(host, port, &hints, &info);
-    if (status)
-    {
-        log_error("Failed to get address info.");
-        close(fd);
-        return NULL;
-    }
-
-    int ok = 0;
-    for (struct addrinfo *p = info; p; p = p->ai_next)
-    {
-        if (connect(fd, p->ai_addr, p->ai_addrlen) == -1)
-        {
-            continue;
-        }
-
-        ok = 1;
-        break;
-    }
-
-    if (!ok)
-    {
-        log_error("Failed to connect.");
-        freeaddrinfo(info);
-        close(fd);
-        return NULL;
-    }
-
-    struct sock *sock = malloc(sizeof(struct sock));
-    size_t host_size = strlen(host) + 1;
-    char *host_copy = malloc(host_size * sizeof(char));
-    if (sock == NULL || host_copy == NULL)
-    {
-        log_alloc_error();
-        close(fd);
-        free(sock);
-        free(host_copy);
-        freeaddrinfo(info);
-        return NULL;
-    }
-
-    memcpy(host_copy, host, host_size);
-    sock->fd = fd;
-    sock->host = host_copy;
-    sock->info = info;
-
-    return sock;
-}
-
-void sock_destroy(struct sock *sock)
-{
-    if (sock == NULL)
-    {
-        log_alloc_error();
-        return;
-    }
-
-    close(sock->fd);
-    free(sock->host);
-    freeaddrinfo(sock->info);
-    free(sock);
-}
-
-ssize_t sock_request(struct sock *sock, char *request_type, char *path,
-                     struct string content)
-{
     char headers[HEADERS_SIZE];
 
     char content_length_line[LINE_SIZE];
@@ -118,12 +37,13 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
              "%s\r\n",
              request_type, path, sock->host, content_length_line);
 
-    ssize_t total = send(sock->fd, headers, strlen(headers), 0);
+    ssize_t count = send(sock->fd, headers, strlen(headers), 0);
 
-    if (total < 0)
+    if (count < 0)
     {
         log_error("Failed to send headers.");
-        return total;
+        sock_destroy(sock);
+        return NULL;
     }
 
     if (is_post)
@@ -136,7 +56,8 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
             if (add < 0)
             {
                 log_error("Failed to send part of the POSTed content.");
-                return add;
+                sock_destroy(sock);
+                return NULL;
             }
             if (add == 0)
             {
@@ -144,16 +65,14 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
             }
 
             index += add;
-            total += add;
         }
     }
 
-    return total;
+    return sock;
 }
 
 static int update_content_length(struct string line, int *found, ssize_t *out)
 {
-    log_info("'%s'", line.data);
     char *ptr = strchr(line.data, ':');
     if (ptr == NULL)
     {
@@ -283,7 +202,6 @@ static int reconstitute_content(struct sock *sock,
 
         buf[count] = '\0';
 
-        log_info("reading %ld bytes", count);
         total_read += count;
 
         int res = string_builder_append(content_sb, buf);
@@ -311,9 +229,6 @@ struct string recv_content(struct sock *sock)
     {
         goto error;
     }
-
-    log_info("found content length of %d", content_length);
-    log_info("current content length is %ld", content_sb->length);
 
     err = reconstitute_content(sock, content_sb, content_length);
     if (err != SUCCESS)

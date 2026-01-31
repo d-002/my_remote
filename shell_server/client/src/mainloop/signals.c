@@ -5,6 +5,7 @@
 #include "signals.h"
 
 #include <sys/signal.h>
+#include <stddef.h>
 
 #include "logger/logger.h"
 #include "utils/errors.h"
@@ -24,6 +25,9 @@ static void handler(int signum)
     {
     case SIGPIPE:
         log_verbose(myglobals.settings->verbose, "Caught SIGPIPE, ignoring.");
+        return;
+    case SIGINT:
+        log_verbose(myglobals.settings->verbose, "Caught SIGINT, ignoring.");
         return;
     }
 }

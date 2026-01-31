@@ -1,20 +1,10 @@
 #ifndef SOCKUTILS_H
 #define SOCKUTILS_H
 
-#include <netdb.h>
 #include <stddef.h>
 
-#include "stringbuilder.h"
-
-struct sock
-{
-    int fd;
-    char *host; // allocated copy of the parameter
-    struct addrinfo *info;
-};
-
-struct sock *sock_create(char *addr, char *port);
-void sock_destroy(struct sock *sock);
+#include "utils/stringutils.h"
+#include "settings/settings.h"
 
 /*
  * Send a request to the given socket.
@@ -22,8 +12,8 @@ void sock_destroy(struct sock *sock);
  * In GET requests, the content argument's string field may be set to NULL.
  * In POST requests, it will be send()ed after the main headers.
  */
-ssize_t sock_request(struct sock *sock, char *request_type, char *path,
-                     struct string content);
+struct sock *sock_request(struct settings *settings, char *request_type,
+                          char *path, struct string content);
 
 // will be assuming the request newlines are correctly formatted
 struct string recv_content(struct sock *sock);
