@@ -39,7 +39,7 @@ function updateSelection() {
     if (selected.index >= 0) {
         const elt = machinesList.children[selected.index];
         selected.hash = elt.getAttribute("machine-hash");
-        info.innerHTML = "hash: <code>" + selected.hash + "</code>";
+        info.innerHTML = "<code>" + selected.hash + "</code>";
     }
 
     let i = 0;

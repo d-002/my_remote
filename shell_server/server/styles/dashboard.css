@@ -20,17 +20,27 @@ body {
 }
 
 @media (max-width: 600px) {
-    #header div:nth-child(2), #header-after {
+    #header>div:nth-child(1), #header-after {
         display: none;
     }
 }
 
 #header h1 {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
 }
 
 #header a {
+    font-size: .9rem;
     color: var(--fgspecial);
+}
+
+#header-right {
+    display: flex;
+    justify-content: right;
+}
+
+#header-right a {
+    text-align: right;
 }
 
 #header-after {
@@ -56,13 +66,23 @@ body {
     #left {
         max-width: 300px;
     }
+
+    #right {
+        overflow: auto hidden;
+    }
+}
+
+@media (max-width: 600px) {
+    #right {
+        overflow: hidden;
+    }
 }
 
 #left {
-    overflow: auto unset;
-
+    overflow: hidden auto;
     flex: 1;
 
+    min-width: 300px;
     padding: .5em 1.5em;
 
     background-color: var(--bg3);
@@ -70,7 +90,7 @@ body {
 }
 
 #left h2 {
-    font-size: 2rem;
+    font-size: 1.5rem;
 }
 
 ul {
@@ -112,5 +132,41 @@ li::marker {
 }
 
 #right h3 {
-    font-size: 1.5rem;
+    margin: 1em 0 0 0;
+    font-size: 1.2rem;
+}
+
+#shell, #command-form {
+    margin: .7em 0;
+    padding: .5em;
+
+    border-radius: .5em;
+    background-color: var(--bgshell);
+    color: var(--fgshell);
+
+    font-family: var(--mono);
+}
+
+#shell p, #command-form :is(label, input) {
+    font-size: .8em;
+}
+
+#shell p {
+    margin: .3em 0;
+}
+
+#command-form {
+    display: flex;
+    align-items: center;
+    gap: 1ch;
+}
+
+#command-form input {
+    flex-grow: 1;
+
+    background-color: transparent;
+    border: none;
+
+    font-family: var(--mono);
+    color: var(--fgshell);
 }

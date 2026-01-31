@@ -35,19 +35,20 @@ else if ($user === NULL) {
 
     <link rel="stylesheet" href="/styles/common.css">
     <link rel="stylesheet" href="/styles/dashboard.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body user-hash="<?= $user_hash ?>">
 
 <div id="header">
-    <div>
+    <div id="header-left">
     </div>
 
-    <div>
+    <div id="header-center">
         <h1>Welcome, <?= $_SESSION["username"] ?></h1>
     </div>
 
-    <div>
+    <div id="header-right">
         <a href="/logout">Log out</a>
     </div>
 
@@ -86,9 +87,9 @@ catch (Exception $e) {
     <p id="selected-machine-info"</p>
     <h3>Shell</h3>
     <div id="shell"></div>
-    <form action="javascript:sendCommand()">
+    <form id="command-form" action="javascript:sendCommand()">
         <label for="shell-input">$</label>
-        <input type="text" id="shell-input">
+        <input type="text" id="shell-input" placeholder="Type a command...">
     </form>
 
     <a onclick="renameMachine()">Rename machine</a>
