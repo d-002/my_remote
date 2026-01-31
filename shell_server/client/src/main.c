@@ -10,9 +10,12 @@ int main(void)
         return 1;
     }
 
-    struct string content = { .data = "hello world", .length = 12 };
-    ssize_t count = sock_request(sock, "GET", "/", content);
+    char str[] = "idle\n0.0.1\n";
+    struct string content = { .data = str, .length = sizeof(str) - 1 };
+
+    ssize_t count = sock_request(sock, "POST", "/api/heartbeat.php?user=d8e3141ff3d0fba630b86c8d4af6853cb930f29f67247907e87b21eeaafcbb31&machine=89a76cc7731845542079468858b7f0f4ec5d5d8c7d849842d14d16fcdc8bceb4", content);
+    int res = count < 0 ? 1 : debug_print_recv(sock);
 
     sock_destroy(sock);
-    return count < 0;
+    return res;
 }

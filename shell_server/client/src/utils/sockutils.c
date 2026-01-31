@@ -104,9 +104,11 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
     int is_post = STREQL(request_type, "POST");
     if (is_post)
     {
-        snprintf(content_length_line, LINE_SIZE, "Content-Length: %ld\r\n", content.length);
+        snprintf(content_length_line, LINE_SIZE, "Content-Length: %ld\r\n",
+                 content.length);
     }
-    else {
+    else
+    {
         content_length_line[0] = '\0';
     }
 
@@ -130,7 +132,8 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
         size_t index = 0;
         while (index < content.length)
         {
-            ssize_t add = send(sock->fd, content.data + index, content.length, 0);
+            ssize_t add =
+                send(sock->fd, content.data + index, content.length, 0);
             if (add < 0)
             {
                 logerror("Failed to send part of the POSTed content.");
@@ -147,4 +150,67 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
     }
 
     return total;
+}
+
+int debug_print_recv(struct sock *sock)
+{
+    char buf[64];
+    size_t length = 0;
+    int newline_count = 0;
+    int started_content = 0;
+    ssize_t start = -1;
+
+    while (1)
+    {
+        ssize_t count = recv(sock->fd, buf, sizeof(buf) - 1, 0);
+
+        if (count < 0)
+        {
+            logerror("Failed to receive in debug print.");
+            return 1;
+        }
+        if (count == 0)
+        {
+            break;
+        }
+
+        length += count;
+        buf[count] = '\0';
+
+        if (started_content)
+        {
+            printf("%s", buf);
+        }
+        else
+        {
+            char prev = '\0';
+            for (ssize_t i = 0; i < count; i++)
+            {
+                char c = buf[i];
+                if (c == '\n' && prev == '\r')
+                {
+                    if (++newline_count == 2)
+                    {
+                        start = i + 1;
+                        started_content = 1;
+                        break;
+                    }
+                }
+                else if (c != '\r' || prev != '\n')
+                {
+                    newline_count = 0;
+                }
+
+                prev = c;
+            }
+
+            if (start >= 0 && (size_t)start < sizeof(buf))
+            {
+                printf("%s", buf + start);
+            }
+        }
+    }
+    putchar('\n');
+
+    return 0;
 }
