@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils/macros.h"
 #include "logger/logger.h"
 
 #define BUF_SIZE 1024
@@ -15,7 +16,7 @@ char *file_to_string(char *path)
     FILE *user_file = fopen(path, "r");
     if (user_file == NULL)
     {
-        logerror("Failed to open file '%s'.", path);
+        log_error("Failed to open file '%s'.", path);
         return NULL;
     }
     size_t count = fread(buf, sizeof(char), BUF_SIZE, user_file);
@@ -33,7 +34,7 @@ char *file_to_string(char *path)
     return s;
 }
 
-struct settings *settings_create(void)
+struct settings *settings_create(int argc, char *argv[])
 {
     struct settings *settings = malloc(sizeof(struct settings));
     if (settings == NULL)
@@ -56,6 +57,13 @@ struct settings *settings_create(void)
     settings->user_hash = user_hash;
     settings->machine_hash = machine_hash;
     settings->version = version;
+
+    for (int i = 1; i < argc; i++) {
+        if (STREQL(argv[i], "-v")) {
+            settings->verbose = true;
+            log_verbose(true, "Running in verbose mode");
+        }
+    }
 
     printf("'%s' '%s' '%s'\n", user_hash, machine_hash, version);
 

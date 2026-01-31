@@ -5,10 +5,7 @@ TARGET=shell_client
 OBJ_MAIN=src/main.o
 OBJ=src/utils/sockutils.o \
 	src/logger/logger.o \
-	src/settings/settings.o
-HEADERS=src/utils/sockutils.h src/utils/macros.h src/utils/stringutils.h \
-	src/logger/logger.h \
-	src/settings/settings.h
+	src/settings/settings.o src/settings/state.o src/mainloop/mainloop.o
 
 TARGET_UNIT=tests/unit
 OBJ_UNIT=tests/unit.o
@@ -23,7 +20,7 @@ portable: clean $(TARGET)
 	[ -n "$$(ldd $(TARGET) 2>&1 | grep 'not a dynamic executable')" ]
 	strip $(TARGET)
 
-$(TARGET): $(OBJ_MAIN) $(OBJ) $(HEADERS)
+$(TARGET): $(OBJ_MAIN) $(OBJ)
 	$(CC) -o $@ $^ $(LDLIBS) $(LDFLAGS)
 
 $(TARGET_UNIT): CFLAGS+=-lcriterion -g

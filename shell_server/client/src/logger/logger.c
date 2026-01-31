@@ -13,7 +13,7 @@ void log_inner(FILE *stream, const char *prefix, const char *format,
     putc('\n', stream);
 }
 
-void loginfo(const char *format, ...)
+void log_info(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -21,7 +21,7 @@ void loginfo(const char *format, ...)
     va_end(args);
 }
 
-void logerror(const char *format, ...)
+void log_error(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -29,7 +29,18 @@ void logerror(const char *format, ...)
     va_end(args);
 }
 
+void log_verbose(bool verbose, const char *format, ...) {
+    if (!verbose) {
+        return;
+    }
+
+    va_list args;
+    va_start(args, format);
+    log_inner(stderr, "[VERBOSE] ", format, args);
+    va_end(args);
+}
+
 void log_alloc_error()
 {
-    logerror("Failed to allocate memory.");
+    log_error("Failed to allocate memory.");
 }

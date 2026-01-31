@@ -21,7 +21,7 @@ struct sock *sock_create(char *host, char *port)
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd == -1)
     {
-        logerror("Failed to create socket.");
+        log_error("Failed to create socket.");
         return NULL;
     }
 
@@ -35,7 +35,7 @@ struct sock *sock_create(char *host, char *port)
     int status = getaddrinfo(host, port, &hints, &info);
     if (status)
     {
-        logerror("Failed to get address info.");
+        log_error("Failed to get address info.");
         close(fd);
         return NULL;
     }
@@ -54,7 +54,7 @@ struct sock *sock_create(char *host, char *port)
 
     if (!ok)
     {
-        logerror("Failed to connect.");
+        log_error("Failed to connect.");
         freeaddrinfo(info);
         close(fd);
         return NULL;
@@ -123,7 +123,7 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
 
     if (total < 0)
     {
-        logerror("Failed to send headers.");
+        log_error("Failed to send headers.");
         return total;
     }
 
@@ -136,7 +136,7 @@ ssize_t sock_request(struct sock *sock, char *request_type, char *path,
                 send(sock->fd, content.data + index, content.length, 0);
             if (add < 0)
             {
-                logerror("Failed to send part of the POSTed content.");
+                log_error("Failed to send part of the POSTed content.");
                 return add;
             }
             if (add == 0)
@@ -166,7 +166,7 @@ int debug_print_recv(struct sock *sock)
 
         if (count < 0)
         {
-            logerror("Failed to receive in debug print.");
+            log_error("Failed to receive in debug print.");
             return 1;
         }
         if (count == 0)

@@ -1,17 +1,23 @@
-#include <stdio.h>
-
 #include "settings/settings.h"
+#include "settings/state.h"
+#include "mainloop/mainloop.h"
 #include "utils/sockutils.h"
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    struct settings *settings = settings_create();
-    if (settings == NULL) {
+    struct settings *settings = settings_create(argc, argv);
+    struct state *state = state_create();
+    if (settings == NULL || state == NULL) {
+        settings_destroy(settings);
+        state_destroy(state);
         return 1;
     }
 
+    int res = mainloop(settings, state);
+
     settings_destroy(settings);
-    return 0;
+    state_destroy(state);
+    return res;
     /*
     struct sock *sock = sock_create("localhost", "8080");
     if (sock == NULL)
