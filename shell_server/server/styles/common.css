@@ -60,6 +60,8 @@ p.error {
 }
 
 a {
+    cursor: pointer;
+
     color: var(--link);
     text-decoration: none;
     font-weight: bold;

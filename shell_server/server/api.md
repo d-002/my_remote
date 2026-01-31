@@ -7,11 +7,10 @@
   commands)
 + change machines names
 + clear command history
++ pages styling
 
-- pages styling
 - send custom messages to a machine: restart, destroy (as special keywords in a
   command)
-- delete account and everything related to it
 
 ## machine
 + register and attach to user

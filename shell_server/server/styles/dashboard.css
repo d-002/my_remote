@@ -174,3 +174,12 @@ li::marker {
     font-family: var(--mono);
     color: var(--fgshell);
 }
+
+#actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1em;
+
+    margin: 1em .5em;
+}

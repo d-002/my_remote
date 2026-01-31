@@ -92,8 +92,13 @@ catch (Exception $e) {
         <input type="text" id="shell-input" placeholder="Type a command...">
     </form>
 
-    <a onclick="renameMachine()">Rename machine</a>
-    <a onclick="clearShell()">Clear shell history</a>
+    <h3>Actions</h3>
+    <div id="actions">
+        <a onclick="restartmachine()">Restart machine</a>
+        <a onclick="destroylink()">Destroy machine and link</a>
+        <a onclick="clearshell()">Clear shell history</a>
+        <a onclick="renameMachine()">Rename machine</a>
+    </div>
 </div>
 </div>
 
