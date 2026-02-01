@@ -31,7 +31,9 @@ Try it on your own machine! (trust)
 **Requirements:**
 
 - A PHP-capable server, that supports sqlite3
-- C compiling suite on the target machines
+- C compiling suite on the target machines, as well as Python 3 for the
+  installer
+- Optionally, for cross-platform building, `cosmocc` and `musl-gcc`
 
 **Setup:**
 

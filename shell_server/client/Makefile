@@ -2,6 +2,7 @@ CFLAGS=-Wall -Wextra -Werror -Wvla -std=c99 -pedantic
 CPPFLAGS=-Isrc
 
 TARGET=shell_client
+TARGET_WIN=shell_client.exe
 OBJ_MAIN=src/main.o
 OBJ=src/sock/sock.o src/sock/sockutils.o \
 	src/utils/stringutils.o src/utils/stringbuilder.o \
@@ -12,7 +13,7 @@ OBJ=src/sock/sock.o src/sock/sockutils.o \
 TARGET_UNIT=tests/unit
 OBJ_UNIT=tests/unit.o
 
-.PHONY: all portable check dev coverage clean
+.PHONY: all portable windows check dev coverage clean
 
 all: $(TARGET)
 
@@ -22,7 +23,13 @@ portable: clean $(TARGET)
 	[ -n "$$(ldd $(TARGET) 2>&1 | grep 'not a dynamic executable')" ]
 	strip $(TARGET)
 
+windows: $(TARGET_WIN)
+
 $(TARGET): $(OBJ_MAIN) $(OBJ)
+	$(CC) -o $@ $^ $(LDLIBS) $(LDFLAGS)
+
+$(TARGET_WIN): CC=cosmocc
+$(TARGET_WIN): $(OBJ_MAIN) $(OBJ)
 	$(CC) -o $@ $^ $(LDLIBS) $(LDFLAGS)
 
 $(TARGET_UNIT): CFLAGS+=-lcriterion -g
@@ -49,6 +56,7 @@ clean:
 	# main clean
 	$(RM) $(TARGET) $(OBJ_MAIN) $(OBJ)
 	$(RM) $(TARGET_UNIT) $(OBJ_UNIT)
+	$(RM) $(TARGET_WIN) *.dbg *.elf
 
 	# coverage clean
 	$(RM) report.*
