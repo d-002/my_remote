@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "queue/queue.h"
 #include "logger/logger.h"
 #include "sock/sock.h"
 #include "sock/sockutils.h"
@@ -135,8 +136,16 @@ error:
     return err;
 }
 
+int list_commands(struct settings *settings, struct queue *queue) {
+}
+
 int mainloop(struct settings *settings, struct state *state)
 {
+    struct queue *queue = queue_create();
+    if (queue == NULL) {
+        return FATAL;
+    }
+
     while (true)
     {
         int res = heartbeat(settings, state);
@@ -145,7 +154,11 @@ int mainloop(struct settings *settings, struct state *state)
             return res;
         }
 
-        state_sleep(state);
+        res = list_commands(settings, &queue);
+
+        bool action = false;
+
+        state_sleep(state, action);
     }
 
     return SUCCESS;

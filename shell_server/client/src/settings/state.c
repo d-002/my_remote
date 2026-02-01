@@ -1,6 +1,7 @@
 #include "state.h"
 
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "logger/logger.h"
@@ -29,8 +30,18 @@ void state_destroy(struct state *state)
     free(state);
 }
 
-void state_sleep(struct state *state)
+void state_sleep(struct state *state, bool action)
 {
+    int now = time(NULL);
+
+    if (action)
+    {
+        state->last_action_timestamp = now;
+    }
+
+    state->state =
+        now - state->last_action_timestamp < IDLE_THRESHOLD ? ACTIVE : IDLE;
+
     switch (state->state)
     {
     case IDLE:
