@@ -40,14 +40,12 @@ static int apply_patch(struct settings *settings, struct string patch)
     }
 }
 
-static int heartbeat(struct settings *settings, struct state *state)
+static int heartbeat_prepare(struct settings *settings, struct state *state,
+                             struct sock **out)
 {
-    log_verbose(settings->verbose, "Heartbeat.");
-
     struct string url = NULL_STRING;
     struct string content = NULL_STRING;
-    struct string response = NULL_STRING;
-    int which_err = ERROR;
+    int err = SUCCESS;
 
     char *url_arr[] = {
         "/api/heartbeat.php?user=",
@@ -59,7 +57,7 @@ static int heartbeat(struct settings *settings, struct state *state)
     url = concat_str(url_arr);
     if (url.data == NULL)
     {
-        which_err = FATAL;
+        err = FATAL;
         goto error;
     }
 
@@ -72,17 +70,39 @@ static int heartbeat(struct settings *settings, struct state *state)
     content = concat_str(content_arr);
     if (content.data == NULL)
     {
-        which_err = FATAL;
+        err = FATAL;
         goto error;
     }
 
     struct sock *sock = sock_request(settings, "POST", url.data, content);
     if (sock == NULL)
     {
+        err = ERROR;
         goto error;
     }
 
-    response = recv_content(sock);
+    *out = sock;
+
+error:
+    STRING_FREE(url);
+    STRING_FREE(content);
+
+    return err;
+}
+
+static int heartbeat(struct settings *settings, struct state *state)
+{
+    log_verbose(settings->verbose, "Heartbeat.");
+
+    struct sock *sock = NULL;
+    int err = heartbeat_prepare(settings, state, &sock);
+
+    if (err != SUCCESS)
+    {
+        goto error;
+    }
+
+    struct string response = recv_content(sock);
     if (response.data == NULL)
     {
         goto error;
@@ -101,28 +121,18 @@ static int heartbeat(struct settings *settings, struct state *state)
             .length = response.length - offset,
         };
 
-        int res = apply_patch(settings, patch);
-        if (res != SUCCESS)
+        err = apply_patch(settings, patch);
+        if (err != SUCCESS)
         {
-            which_err = res;
             goto error;
         }
     }
 
-    sock_destroy(sock);
-    STRING_FREE(url);
-    STRING_FREE(content);
-    STRING_FREE(response);
-
-    return SUCCESS;
-
 error:
     sock_destroy(sock);
-    STRING_FREE(url);
-    STRING_FREE(content);
     STRING_FREE(response);
 
-    return which_err;
+    return err;
 }
 
 int mainloop(struct settings *settings, struct state *state)
