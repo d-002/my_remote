@@ -7,6 +7,8 @@
 
 #include <stdbool.h>
 
+#include "settings/settings.h"
+
 enum state_values
 {
     IDLE,
@@ -24,10 +26,10 @@ struct state
 struct state *state_create(void);
 void state_destroy(struct state *state);
 
-char *state_str(struct state *state);
+char *state_str(enum state_values state);
 
 // set the state depending on whether an action was taken or nothing was done
 // for too long, then sleep accordingly
-void state_sleep(struct state *state, bool action);
+void state_sleep(struct settings *settings, struct state *state, bool action);
 
 #endif /* ! STATE_H */

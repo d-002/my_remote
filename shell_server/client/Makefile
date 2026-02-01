@@ -8,6 +8,7 @@ OBJ=src/sock/sock.o src/sock/sockutils.o \
 	src/utils/stringutils.o src/utils/stringbuilder.o \
 	src/logger/logger.o \
 	src/settings/settings.o src/settings/state.o \
+	src/queue/queue.o \
 	src/mainloop/mainloop.o src/mainloop/signals.o
 
 TARGET_UNIT=tests/unit

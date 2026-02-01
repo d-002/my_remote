@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "queue/queue.h"
 #include "logger/logger.h"
+#include "queue/queue.h"
 #include "sock/sock.h"
 #include "sock/sockutils.h"
 #include "utils/errors.h"
@@ -63,7 +63,7 @@ static int heartbeat_prepare(struct settings *settings, struct state *state,
     }
 
     char *content_arr[] = {
-        state_str(state),
+        state_str(state->state),
         "\n",
         settings->version,
         NULL,
@@ -136,30 +136,58 @@ error:
     return err;
 }
 
-int list_commands(struct settings *settings, struct queue *queue) {
+int list_commands(struct settings *settings, struct queue *queue)
+{
+    settings++; /////
+    queue++; /////
+
+    return SUCCESS;
+}
+
+int run_command(struct settings *settings, char *command)
+{
+    settings++; /////
+    log_verbose(settings->verbose, "running command '%s'", command);
+
+    return SUCCESS;
 }
 
 int mainloop(struct settings *settings, struct state *state)
 {
-    struct queue *queue = queue_create();
-    if (queue == NULL) {
+    struct queue *queue = queue_create(free);
+    if (queue == NULL)
+    {
         return FATAL;
     }
 
+    int err = SUCCESS;
+
     while (true)
     {
-        int res = heartbeat(settings, state);
-        if (res == FATAL || res == EXIT)
+        err = heartbeat(settings, state);
+        if (err == FATAL || err == EXIT)
         {
-            return res;
+            goto end;
         }
 
-        res = list_commands(settings, &queue);
+        err = list_commands(settings, queue);
 
-        bool action = false;
+        bool action = queue->length != 0;
+        for (char *command; command; command = queue_dequeue(queue))
+        {
+            err = run_command(settings, command);
+            free(command);
 
-        state_sleep(state, action);
+            if (err == FATAL || err == EXIT)
+            {
+                goto end;
+            }
+        }
+
+        state_sleep(settings, state, action);
     }
 
-    return SUCCESS;
+end:
+    queue_destroy(queue);
+    return err;
 }
