@@ -61,7 +61,7 @@ struct sock *sock_create(char *host, char *port)
     char *host_copy = malloc(host_size * sizeof(char));
     if (sock == NULL || host_copy == NULL)
     {
-        log_alloc_error();
+        log_alloc_error("sock create, copying to struct");
         close(fd);
         free(sock);
         free(host_copy);
@@ -81,7 +81,6 @@ void sock_destroy(struct sock *sock)
 {
     if (sock == NULL)
     {
-        log_alloc_error();
         return;
     }
 

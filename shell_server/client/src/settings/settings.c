@@ -23,7 +23,7 @@ char *file_to_string(char *path)
     char *s = malloc((count + 1) * sizeof(char));
     if (s == NULL)
     {
-        log_alloc_error();
+        log_alloc_error("file to string");
         return NULL;
     }
 
@@ -38,7 +38,7 @@ struct settings *settings_create(int argc, char *argv[])
     struct settings *settings = malloc(sizeof(struct settings));
     if (settings == NULL)
     {
-        log_alloc_error();
+        log_alloc_error("settings create");
         return NULL;
     }
 

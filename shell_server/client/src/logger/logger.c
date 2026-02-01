@@ -40,7 +40,7 @@ void log_verbose(bool verbose, const char *format, ...) {
     va_end(args);
 }
 
-void log_alloc_error()
+void log_alloc_error(const char *where)
 {
-    log_error("Failed to allocate memory.");
+    log_error("%s: Failed to allocate memory.", where);
 }

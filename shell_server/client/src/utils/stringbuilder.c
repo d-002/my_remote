@@ -11,7 +11,7 @@ struct string_builder *string_builder_create(char *s)
     struct string_builder *sb = malloc(sizeof(struct string_builder));
     if (sb == NULL)
     {
-        log_alloc_error();
+        log_alloc_error("sb create");
         return NULL;
     }
 
@@ -27,7 +27,7 @@ struct string_builder *string_builder_create(char *s)
 
         if (sb->data == NULL)
         {
-            log_alloc_error();
+            log_alloc_error("sb create - copy data");
             free(sb);
             return NULL;
         }
@@ -56,7 +56,7 @@ int string_builder_append(struct string_builder *sb, char *s)
     char *dst = realloc(sb->data, len + 1);
     if (dst == NULL)
     {
-        log_alloc_error();
+        log_alloc_error("sb append");
         return FATAL;
     }
 

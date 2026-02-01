@@ -10,7 +10,7 @@ struct state *state_create(void)
     struct state *state = malloc(sizeof(struct state));
     if (state == NULL)
     {
-        log_alloc_error();
+        log_alloc_error("state create");
         return NULL;
     }
 

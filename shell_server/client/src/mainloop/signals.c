@@ -4,7 +4,7 @@
 
 #include "signals.h"
 
-#include <sys/signal.h>
+#include <signal.h>
 #include <stddef.h>
 
 #include "logger/logger.h"
