@@ -14,3 +14,6 @@ _results
 *.o
 shell_client
 unit
+
+# server software
+software

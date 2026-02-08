@@ -34,6 +34,7 @@ else {
             return "error: Could not fetch user software version";
         }
         $user_version = $software["version"];
+        $user_version = 0.2
 
         $error = updateMachineHeartbeat($db, $machine_hash);
 
