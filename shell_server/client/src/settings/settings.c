@@ -2,11 +2,25 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
+#include "comm/comm.h"
 #include "logger/logger.h"
 #include "utils/stringutils.h"
 
 #define BUF_SIZE 1024
+
+void close_fds(int fd[2])
+{
+    if (fd[0] >= 0)
+    {
+        close(fd[0]);
+    }
+    if (fd[1] >= 0)
+    {
+        close(fd[1]);
+    }
+}
 
 char *file_to_string(char *path)
 {
@@ -42,13 +56,25 @@ struct settings *settings_create(int argc, char *argv[])
         return NULL;
     }
 
+    for (int i = 1; i < argc; i++)
+    {
+        if (STREQL(argv[i], "-v"))
+        {
+            settings->verbose = true;
+        }
+    }
+
     char *host = file_to_string("host");
     char *port = file_to_string("port");
     char *user_hash = file_to_string("user_hash");
     char *machine_hash = file_to_string("machine_hash");
     char *version = file_to_string("version");
+
+    int shell_fd[2] = { -1, -1 };
+    int err = comm_setup(settings, shell_fd);
+
     if (host == NULL || port == NULL || user_hash == NULL
-        || machine_hash == NULL || version == NULL)
+        || machine_hash == NULL || version == NULL || err)
     {
         free(host);
         free(port);
@@ -56,6 +82,7 @@ struct settings *settings_create(int argc, char *argv[])
         free(machine_hash);
         free(version);
         free(settings);
+        close_fds(shell_fd);
         return NULL;
     }
 
@@ -65,14 +92,8 @@ struct settings *settings_create(int argc, char *argv[])
     settings->user_hash = user_hash;
     settings->machine_hash = machine_hash;
     settings->version = version;
-
-    for (int i = 1; i < argc; i++)
-    {
-        if (STREQL(argv[i], "-v"))
-        {
-            settings->verbose = true;
-        }
-    }
+    settings->shell_fd[0] = shell_fd[0];
+    settings->shell_fd[1] = shell_fd[1];
 
     log_verbose(settings->verbose, "Successfully read config.");
     log_verbose(settings->verbose, "Running in verbose mode.");
@@ -95,5 +116,6 @@ void settings_destroy(struct settings *settings)
     free(settings->user_hash);
     free(settings->machine_hash);
     free(settings->version);
+    close_fds(settings->shell_fd);
     free(settings);
 }

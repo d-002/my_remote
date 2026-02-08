@@ -13,6 +13,8 @@ struct settings {
     char *version;
 
     bool verbose;
+
+    int shell_fd[2];
 };
 
 struct settings *settings_create(int argc, char *argv[]);

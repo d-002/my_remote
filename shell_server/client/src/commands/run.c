@@ -9,7 +9,7 @@ static int run_command(struct settings *settings, struct command *command)
     if (command->is_read || command->sender != USER)
         return SUCCESS;
 
-    log_verbose(settings->verbose, "running command '%s'", command->content);
+    log_verbose(settings->verbose, "Running command '%s'", command->content);
 
     return SUCCESS;
 }
