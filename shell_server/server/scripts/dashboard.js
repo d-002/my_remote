@@ -19,7 +19,7 @@ function updateShell() {
         return;
     }
 
-    fetch("/api/list_commands.php?user=" + user_hash + "&machine="
+    get("/api/list_commands.php?user=" + user_hash + "&machine="
         + selected.hash, text => {
         shell.innerHTML = "";
 
@@ -78,8 +78,8 @@ function sendCommand() {
     }
 
     const content = command.value;
-    fetch("/api/enqueue_command.php?user=" + user_hash + "&machine="
-        + selected.hash + "&is_user&content=" + content, text => {
+    post("/api/enqueue_command.php?user=" + user_hash + "&machine="
+        + selected.hash + "&is_user", content, text => {
             if (text.startsWith("error")) {
                 alert(text);
             }
@@ -96,7 +96,7 @@ function clearShell() {
         return;
     }
 
-    fetch("/api/clear_shell.php?user=" + user_hash + "&machine="
+    get("/api/clear_shell.php?user=" + user_hash + "&machine="
         + selected.hash, text => {
         if (text.startsWith("error")) {
             alert(text);
@@ -117,7 +117,7 @@ function renameMachine() {
     const newName = prompt("Enter new machine name: (previous was '" +
         oldName + "')");
 
-    fetch("/api/rename_machine.php?user=" + user_hash + "&machine="
+    get("/api/rename_machine.php?user=" + user_hash + "&machine="
         + selected.hash + "&name=" + newName, text => {
         if (text.startsWith("error")) {
             alert(text);

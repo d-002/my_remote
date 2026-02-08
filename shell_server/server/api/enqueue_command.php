@@ -14,7 +14,13 @@ if ($link_id === NULL) {
 }
 else {
     $is_user = $_REQUEST["is_user"] === NULL ? 0 : 1;
-    $error = enqueueCommand($db, $link_id, $is_user, $_REQUEST["content"]);
+
+    $content = file_get_contents("php://input");
+    if ($content === false) {
+        $error = "Could not read POST raw content";
+    }
+
+    $error = enqueueCommand($db, $link_id, $is_user, $content);
 }
 
 echo $error === "" ? "success" : "error: " . $error;

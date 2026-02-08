@@ -13,7 +13,7 @@ VALUES
         $st->execute(["link_id" => $link_id,
                       "is_user" => $is_user,
                       "timestamp" => time(),
-                      "content" => $_REQUEST["content"]]);
+                      "content" => $content]);
     }
     catch (Exception $e) {
         return "Could not add command.";
