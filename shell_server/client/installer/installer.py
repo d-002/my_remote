@@ -69,13 +69,13 @@ else:
     print('Error: could not connect to the server.')
     exit(1)
 
-print('You now need to log into the server. '
-      'Make sure you created an user there first.')
+print('\nYou now need to log into the server.')
+print('Make sure you created an user there first.')
 
 username = input('Username: ')
 password = getpass('Password: ')
 
-print('Logging in, retrieving user and machine hashes...')
+print('\nLogging in, retrieving user and machine hashes...')
 content = get_file(url + '/api/new_machine.php?username=' + username
                    + '&password=' + password, False)
 
@@ -83,6 +83,7 @@ user_hash, machine_hash = get_hashes(content)
 
 print('Creating directory, storing hashes and server settings in files...')
 store_dir = 'shell_server_machine_' + machine_hash
+
 os.makedirs(store_dir, exist_ok=True)
 with open(os.path.join(store_dir, 'user_hash'), 'w') as f:
     f.write(user_hash)
@@ -93,25 +94,42 @@ with open(os.path.join(store_dir, 'host'), 'w') as f:
 with open(os.path.join(store_dir, 'port'), 'w') as f:
     f.write(str(port))
 
-print('Downloading binary and getting version...')
-binary = post_file(url + '/api/heartbeat.php?user=' + user_hash + "&machine="
-                  + machine_hash, '0', True) # using version 0 to force update
-index = binary.index(b'\n')
-binary = binary[index + 1:]
-index = binary.index(b'\n')
-version = binary[:index].decode()
-binary = binary[index + 1:]
+print('\nDo you wish to set up the software and version manually?')
+print('If you answer "no", this utility will query and run the software '
+      'specified in the user\'s dashboard.')
+manual_install = 'y' in input('[y/N]: ')
+print()
 
-print(f'Installing binary at version {version} ({len(binary)} bytes)...')
-with open(os.path.join(store_dir, 'version'), 'w') as f:
-    f.write(version)
 bin_path = os.path.join(".", store_dir, 'shell_client')
-with open(bin_path, 'wb') as f:
-    f.write(binary)
-os.chmod(bin_path, 0o755)
+version_path = os.path.join(".", store_dir, 'version')
 
-print('Starting daemon...')
-subprocess.Popen(bin_path)
+if manual_install:
+    print('You chose the manual install.')
+    print('You will need to place :')
+    print(f'- A valid binary in {bin_path}')
+    print(f'- A valid version in {version_path}')
+    print('And then run the software.')
+else:
+    print('Downloading binary and getting version from the user...')
+    # using version 0 to force update
+    binary = post_file(url + '/api/heartbeat.php?user=' + user_hash +
+                       "&machine=" + machine_hash, '0', True)
 
-print('Successfully installed. '
-      'You can now go back to your dashboard on the server.')
+    index = binary.index(b'\n')
+    binary = binary[index + 1:]
+    index = binary.index(b'\n')
+    version = binary[:index].decode()
+    binary = binary[index + 1:]
+
+    print(f'Installing binary at version {version} ({len(binary)} bytes)...')
+    with open(version_path, 'w') as f:
+        f.write(version)
+    with open(bin_path, 'wb') as f:
+        f.write(binary)
+    os.chmod(bin_path, 0o755)
+
+    print('Starting software...')
+    subprocess.Popen(bin_path)
+
+    print('\nSuccessfully installed.')
+    print('You can now go back to your dashboard on the server.')

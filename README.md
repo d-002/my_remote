@@ -39,6 +39,9 @@ Try it on your own machine! (trust)
 **Setup:**
 
 - Host the server.
+  You will also need to create files `/software/version` (text containing the
+  version) and `/software/binary` (compiled static software) for when users are
+  created.
 - Log into the server, creating a user to which the machines you affect will be
   linked.
   This also adds a small security layer to determine who is able to run commands
@@ -56,6 +59,11 @@ Software versions are handled separately for all website users, to avoid
 breaking changes.
 
 **Technical details:**
+
+In systems where you do not wish to use the auto-update system, for example if
+you want to compile the software yourself on a machine and never override it,
+you will need to say so during the installation process with the installer, as
+well as place the desired binary in the provided directory.
 
 On creating an account on the server a unique hash is associated with it.
 When setting up the remote shell on a machine, upon logging the server answers

@@ -23,7 +23,7 @@ function registerUser($db, $username, $password) {
 
     $version = file_get_contents($_SERVER["DOCUMENT_ROOT"] . "/software/version");
     if ($version === false) {
-        return "Could not read current software version.";
+        return "Could not read current software version. Make sure a base software is present.";
     }
     $version = trim($version);
 
