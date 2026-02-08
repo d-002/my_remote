@@ -1,16 +1,63 @@
 #include "cmd_run.h"
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "sock/sockutils.h"
-#include "utils/stringbuilder.h"
 #include "comm/comm_api.h"
 #include "command.h"
 #include "logger/logger.h"
+#include "sock/sockutils.h"
 #include "utils/errors.h"
+#include "utils/stringbuilder.h"
 
-static int mark_command_as_read(struct settings *settings) {
+static int send_command_output(struct settings *settings, struct string output)
+{
+    struct string url = NULL_STRING;
+    int err = SUCCESS;
+
+    char *url_arr[] = {
+        "/api/enqueue_command.php?user=",
+        settings->user_hash,
+        "&machine=",
+        settings->machine_hash,
+        NULL,
+    };
+    url = concat_str(url_arr);
+    if (url.data == NULL)
+    {
+        err = FATAL;
+        goto end;
+    }
+
+    struct sock *sock = sock_request(settings, "POST", url.data, output);
+    if (sock == NULL)
+    {
+        err = ERROR;
+        goto end;
+    }
+
+    struct string response = recv_content(sock);
+    if (response.data == NULL)
+    {
+        err = ERROR;
+        goto end;
+    }
+
+    if (STRSTARTSWITH(response.data, "error"))
+    {
+        log_error("%s", response.data);
+        err = ERROR;
+        goto end;
+    }
+
+end:
+    STRING_FREE(url);
+
+    return err;
+}
+
+static int mark_command_as_read(struct settings *settings)
+{
     struct string url = NULL_STRING;
     int err = SUCCESS;
 
@@ -36,7 +83,8 @@ static int mark_command_as_read(struct settings *settings) {
     }
 
     struct string response = recv_content(sock);
-    if (response.data == NULL) {
+    if (response.data == NULL)
+    {
         err = ERROR;
         goto end;
     }
@@ -75,7 +123,11 @@ static int run_command(struct settings *settings, struct command *command,
     if (err == SUCCESS)
     {
         printf("%s\n", out.data);
-        err = mark_command_as_read(settings);
+        err = send_command_output(settings, out);
+        if (err == SUCCESS)
+        {
+            err = mark_command_as_read(settings);
+        }
         STRING_FREE(out);
     }
 
