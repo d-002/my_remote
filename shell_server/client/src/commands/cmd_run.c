@@ -3,10 +3,56 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "sock/sockutils.h"
+#include "utils/stringbuilder.h"
 #include "comm/comm_api.h"
 #include "command.h"
 #include "logger/logger.h"
 #include "utils/errors.h"
+
+static int mark_command_as_read(struct settings *settings) {
+    struct string url = NULL_STRING;
+    int err = SUCCESS;
+
+    char *url_arr[] = {
+        "/api/machine_read_command.php?user=",
+        settings->user_hash,
+        "&machine=",
+        settings->machine_hash,
+        NULL,
+    };
+    url = concat_str(url_arr);
+    if (url.data == NULL)
+    {
+        err = FATAL;
+        goto end;
+    }
+
+    struct sock *sock = sock_request(settings, "GET", url.data, NULL_STRING);
+    if (sock == NULL)
+    {
+        err = ERROR;
+        goto end;
+    }
+
+    struct string response = recv_content(sock);
+    if (response.data == NULL) {
+        err = ERROR;
+        goto end;
+    }
+
+    if (STRSTARTSWITH(response.data, "error"))
+    {
+        log_error("%s", response.data);
+        err = ERROR;
+        goto end;
+    }
+
+end:
+    STRING_FREE(url);
+
+    return err;
+}
 
 static int run_command(struct settings *settings, struct command *command,
                        bool *action)
@@ -29,6 +75,7 @@ static int run_command(struct settings *settings, struct command *command,
     if (err == SUCCESS)
     {
         printf("%s\n", out.data);
+        err = mark_command_as_read(settings);
         STRING_FREE(out);
     }
 

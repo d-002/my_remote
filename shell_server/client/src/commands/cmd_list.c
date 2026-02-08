@@ -12,7 +12,6 @@
 static int list_commands_prepare(struct settings *settings, struct sock **out)
 {
     struct string url = NULL_STRING;
-    struct string content = NULL_STRING;
     int err = SUCCESS;
 
     char *url_arr[] = {
@@ -26,21 +25,20 @@ static int list_commands_prepare(struct settings *settings, struct sock **out)
     if (url.data == NULL)
     {
         err = FATAL;
-        goto error;
+        goto end;
     }
 
     struct sock *sock = sock_request(settings, "GET", url.data, NULL_STRING);
     if (sock == NULL)
     {
         err = ERROR;
-        goto error;
+        goto end;
     }
 
     *out = sock;
 
-error:
+end:
     STRING_FREE(url);
-    STRING_FREE(content);
 
     return err;
 }
@@ -96,6 +94,7 @@ int list_commands(struct settings *settings, struct queue *queue)
     if (STRSTARTSWITH(response.data, "error"))
     {
         log_error("%s", response.data);
+        err = ERROR;
         goto end;
     }
     else
