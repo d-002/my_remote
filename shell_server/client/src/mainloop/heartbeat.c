@@ -1,6 +1,8 @@
 #include "heartbeat.h"
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "logger/logger.h"
@@ -10,20 +12,91 @@
 #include "utils/stringbuilder.h"
 #include "utils/stringutils.h"
 
+static int write_to_file(struct settings *settings, char *fname, char *data,
+                         size_t len)
+{
+    FILE *f = fopen(fname, "w");
+    if (f == NULL)
+    {
+        log_error("Failed to open '%s' for writing.", fname);
+        return ERROR;
+    }
+
+    int res = SUCCESS;
+    while (len > 0)
+    {
+        ssize_t count = fwrite(data, sizeof(char), len, f);
+        if (count < 0)
+        {
+            res = ERROR;
+            break;
+        }
+
+        len -= count;
+        data += count;
+
+        log_verbose(settings->verbose, "Wrote %ld bytes, %ld remaining", count,
+                    len);
+    }
+
+    fclose(f);
+    return res;
+}
+
 static int apply_patch(struct settings *settings, struct string patch)
 {
     char *ptr = strchr(patch.data, '\n');
-    size_t len = ptr - patch.data;
+    size_t version_len = ptr - patch.data;
 
     char *new_version = patch.data;
-    new_version[len] = '\0';
-    patch.data += len + 1;
+    new_version[version_len] = '\0';
 
-    log_info("New version detected (%s, current is %s)", new_version, settings->version);
-    return SUCCESS;
+    log_info("New version detected (%s, current is %s).", new_version,
+             settings->version);
 
-    log_info("Writing patch to file...");
-    patch.data++;
+    log_info("Writing new version to file...");
+    int res = write_to_file(settings, "version", new_version, version_len);
+    if (res != SUCCESS)
+    {
+        return res;
+    }
+
+    patch.data += version_len + 1;
+    patch.length -= version_len + 1;
+
+    log_info("Writing new software to file...");
+    size_t filename_len = strlen(settings->argv0);
+    char *temp_name = calloc(filename_len + 2, sizeof(char));
+    if (temp_name == NULL)
+    {
+        log_alloc_error("temp file name allocation");
+        return FATAL;
+    }
+    memcpy(temp_name, settings->argv0, filename_len);
+    temp_name[filename_len] = '~';
+
+    res = write_to_file(settings, temp_name, patch.data, patch.length);
+    if (res != SUCCESS)
+    {
+        free(temp_name);
+        return res;
+    }
+
+    log_info("Renaming temporary file to current file...");
+    chmod(temp_name, 0755);
+    rename(temp_name, settings->argv0);
+
+    free(temp_name);
+    return res;
+}
+
+static int update(struct settings *settings, struct string patch)
+{
+    int res = apply_patch(settings, patch);
+    if (res != SUCCESS)
+    {
+        return res;
+    }
 
     log_info("Restarting in a new process...");
     int pid = fork();
@@ -33,6 +106,7 @@ static int apply_patch(struct settings *settings, struct string patch)
         log_info("Failed to start new process.");
         return ERROR;
     }
+
     if (pid == 0)
     {
         char *argv[] = {
@@ -42,13 +116,11 @@ static int apply_patch(struct settings *settings, struct string patch)
 
         execvp(argv[0], argv);
 
-        log_info("Should not happen.");
+        log_info("Should not happen. Code running after call to execvp.");
         return ERROR;
     }
-    else
-    {
-        return EXIT;
-    }
+
+    return EXIT;
 }
 
 static int heartbeat_prepare(struct settings *settings, struct state *state,
@@ -133,7 +205,7 @@ int heartbeat(struct settings *settings, struct state *state)
             .length = response.length - offset,
         };
 
-        err = apply_patch(settings, patch);
+        err = update(settings, patch);
         if (err != SUCCESS)
         {
             goto end;

@@ -34,7 +34,6 @@ else {
             return "error: Could not fetch user software version";
         }
         $user_version = $software["version"];
-        $user_version = 0.2
 
         $error = updateMachineHeartbeat($db, $machine_hash);
 
@@ -50,7 +49,7 @@ if ($outData === "") {
     echo $error === "" ? "success" : "error: " . $error;
 }
 else {
-    echo "update\n" . $user_version . "\n" . $outData;
+    echo "update\n" . $outData;
 }
 
 $size = ob_get_length();
