@@ -37,7 +37,7 @@ function updateShell() {
 
             const colonIndex = line.indexOf(":");
             const words = line.substring(0, colonIndex).split(" ");
-            const who = words[0], timestamp = words[1], state = words[2];
+            const who = words[0], state = words[1], timestamp = words[2];
             const message = line.substring(colonIndex + 1);
 
             let pending = false;

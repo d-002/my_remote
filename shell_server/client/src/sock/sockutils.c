@@ -129,11 +129,11 @@ static int find_content_length(struct sock *sock,
             if (c == '\n')
             {
                 buf[i] = '\0'; // artificial end of string for append
-                int res = string_builder_append(line_sb, buf + start);
+                int err = string_builder_append(line_sb, buf + start);
 
-                if (res != SUCCESS)
+                if (err != SUCCESS)
                 {
-                    return res;
+                    return err;
                 }
 
                 struct string line = string_builder_detach(line_sb);
@@ -149,10 +149,10 @@ static int find_content_length(struct sock *sock,
                 }
                 else
                 {
-                    res = update_content_length(line, &found, out);
-                    if (res != SUCCESS)
+                    err = update_content_length(line, &found, out);
+                    if (err != SUCCESS)
                     {
-                        return res;
+                        return err;
                     }
                 }
 
@@ -166,11 +166,11 @@ static int find_content_length(struct sock *sock,
         // iteration, or all the remaining bytes into the content sb
         if (start < LINE_SIZE - 1)
         {
-            int res =
+            int err =
                 string_builder_append(done ? content_sb : line_sb, buf + start);
-            if (res != SUCCESS)
+            if (err != SUCCESS)
             {
-                return res;
+                return err;
             }
         }
     }
@@ -207,10 +207,10 @@ static int reconstitute_content(struct sock *sock,
 
         total_read += count;
 
-        int res = string_builder_append(content_sb, buf);
-        if (res != SUCCESS)
+        int err = string_builder_append(content_sb, buf);
+        if (err != SUCCESS)
         {
-            return res;
+            return err;
         }
     }
 

@@ -22,6 +22,7 @@
 + send back commands
 + send heartbeat with version, get back success, error or the new version and
   binary
++ automatically update on new version
 + installer: ask for url, login, fetch the hashes and copy them to files, fetch
   the binary code from the server and run it.
 

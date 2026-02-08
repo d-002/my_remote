@@ -1,7 +1,8 @@
-#include "list_commands.h"
+#include "list.h"
 
 #include <stdlib.h>
 
+#include "command.h"
 #include "logger/logger.h"
 #include "sock/sock.h"
 #include "sock/sockutils.h"
@@ -44,6 +45,38 @@ error:
     return err;
 }
 
+int split_add_commands(struct string data, struct queue *queue)
+{
+    while (1)
+    {
+        char *ptr = strchr(data.data, '\n');
+        size_t length = ptr == NULL ? data.length : (size_t)(ptr - data.data);
+        if (length == 0)
+        {
+            break;
+        }
+
+        struct command *command = command_create(data.data, length);
+        if (command == NULL)
+        {
+            log_alloc_error("creating command from response");
+            return FATAL;
+        }
+
+        if (queue_enqueue(queue, command))
+        {
+            log_alloc_error("enqueueing command");
+            command_destroy(command);
+            return FATAL;
+        }
+
+        data.data += length + 1;
+        data.length -= length + 1;
+    }
+
+    return SUCCESS;
+}
+
 int list_commands(struct settings *settings, struct queue *queue)
 {
     struct sock *sock = NULL;
@@ -65,15 +98,11 @@ int list_commands(struct settings *settings, struct queue *queue)
         log_error("%s", response.data);
         goto end;
     }
-    else {
+    else
+    {
         // found commands, now list and categorize them
         // will assume they are well formed
-
-        while (1) {
-            log_info("temporary, skipping reading all commands");
-            queue++;
-            break;
-        }
+        err = split_add_commands(response, queue);
     }
 
 end:

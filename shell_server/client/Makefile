@@ -9,7 +9,8 @@ OBJ=src/sock/sock.o src/sock/sockutils.o \
 	src/logger/logger.o \
 	src/settings/settings.o src/settings/state.o \
 	src/queue/queue.o \
-	src/mainloop/mainloop.o src/mainloop/heartbeat.o src/mainloop/list_commands.o src/mainloop/run_commands.o src/mainloop/signals.o
+	src/mainloop/mainloop.o src/mainloop/heartbeat.o src/mainloop/signals.o \
+	src/commands/command.o src/commands/list.o src/commands/run.o
 
 TARGET_UNIT=tests/unit
 OBJ_UNIT=tests/unit.o

@@ -9,32 +9,32 @@
 
 int main(int argc, char *argv[])
 {
-    int res = SUCCESS;
+    int err = SUCCESS;
 
     struct settings *settings = settings_create(argc, argv);
     struct state *state = state_create();
     if (settings == NULL || state == NULL)
     {
-        res = FATAL;
+        err = FATAL;
         goto end;
     }
 
-    res = setup_signals(settings);
-    if (res != SUCCESS)
+    err = setup_signals(settings);
+    if (err != SUCCESS)
     {
         goto end;
     }
 
-    res = mainloop(settings, state);
+    err = mainloop(settings, state);
 
-    if (res == EXIT)
+    if (err == EXIT)
     {
         log_info("Graceful exit.");
-        res = SUCCESS;
+        err = SUCCESS;
     }
 
 end:
     settings_destroy(settings);
     state_destroy(state);
-    return res;
+    return err;
 }

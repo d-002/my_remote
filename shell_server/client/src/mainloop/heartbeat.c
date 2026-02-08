@@ -22,13 +22,13 @@ static int write_to_file(struct settings *settings, char *fname, char *data,
         return ERROR;
     }
 
-    int res = SUCCESS;
+    int err = SUCCESS;
     while (len > 0)
     {
         ssize_t count = fwrite(data, sizeof(char), len, f);
         if (count < 0)
         {
-            res = ERROR;
+            err = ERROR;
             break;
         }
 
@@ -40,7 +40,7 @@ static int write_to_file(struct settings *settings, char *fname, char *data,
     }
 
     fclose(f);
-    return res;
+    return err;
 }
 
 static int apply_patch(struct settings *settings, struct string patch)
@@ -55,10 +55,10 @@ static int apply_patch(struct settings *settings, struct string patch)
              settings->version);
 
     log_info("Writing new version to file...");
-    int res = write_to_file(settings, "version", new_version, version_len);
-    if (res != SUCCESS)
+    int err = write_to_file(settings, "version", new_version, version_len);
+    if (err != SUCCESS)
     {
-        return res;
+        return err;
     }
 
     patch.data += version_len + 1;
@@ -75,11 +75,11 @@ static int apply_patch(struct settings *settings, struct string patch)
     memcpy(temp_name, settings->argv0, filename_len);
     temp_name[filename_len] = '~';
 
-    res = write_to_file(settings, temp_name, patch.data, patch.length);
-    if (res != SUCCESS)
+    err = write_to_file(settings, temp_name, patch.data, patch.length);
+    if (err != SUCCESS)
     {
         free(temp_name);
-        return res;
+        return err;
     }
 
     log_info("Renaming temporary file to current file...");
@@ -87,15 +87,15 @@ static int apply_patch(struct settings *settings, struct string patch)
     rename(temp_name, settings->argv0);
 
     free(temp_name);
-    return res;
+    return err;
 }
 
 static int update(struct settings *settings, struct string patch)
 {
-    int res = apply_patch(settings, patch);
-    if (res != SUCCESS)
+    int err = apply_patch(settings, patch);
+    if (err != SUCCESS)
     {
-        return res;
+        return err;
     }
 
     log_info("Restarting in a new process...");

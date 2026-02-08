@@ -1,16 +1,15 @@
 #include "mainloop.h"
 
-#include <stdlib.h>
-
 #include "heartbeat.h"
-#include "list_commands.h"
+#include "commands/command.h"
+#include "commands/list.h"
+#include "commands/run.h"
 #include "queue/queue.h"
-#include "run_commands.h"
 #include "utils/errors.h"
 
 int mainloop(struct settings *settings, struct state *state)
 {
-    struct queue *queue = queue_create(free);
+    struct queue *queue = queue_create(command_destroy);
     if (queue == NULL)
     {
         return FATAL;
