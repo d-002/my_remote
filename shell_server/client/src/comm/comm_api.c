@@ -6,6 +6,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <poll.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -16,6 +17,7 @@
 #include "utils/stringbuilder.h"
 
 #define BUF_SIZE 1024
+#define READ_TIMEOUT_MS 5000
 #define END_TAG "<END_TAG>"
 
 int send_sh(struct settings *settings, char *message)
@@ -123,6 +125,22 @@ static int sanitize_to_sb(char *buf, size_t count, struct string_builder *sb,
 
 int recv_sh(struct settings *settings, struct string *out)
 {
+    // wait for data
+    struct pollfd pfd;
+    pfd.fd = settings->shell_fd;
+    pfd.events = POLLIN;
+
+    int res = poll(&pfd, 1, READ_TIMEOUT_MS);
+    if (res < 0) {
+        log_error("Failed to poll shell events.");
+        return ERROR;
+    }
+
+    if (res == 0) {
+        log_error("Shell read timed out after %dms.", READ_TIMEOUT_MS);
+        return ERROR;
+    }
+
     struct string_builder *sb = string_builder_create(NULL);
     if (sb == NULL)
     {
@@ -140,6 +158,7 @@ int recv_sh(struct settings *settings, struct string *out)
         if (count < 0)
         {
             log_error("Failed to read shell answer");
+            err = ERROR;
             break;
         }
         if (count == 0)
