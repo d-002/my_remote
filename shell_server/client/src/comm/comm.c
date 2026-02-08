@@ -1,94 +1,46 @@
 #include "comm.h"
 
-#include <stdlib.h>
+#include <pty.h>
+#include <termios.h>
 #include <unistd.h>
 
 #include "logger/logger.h"
-#include "utils/errors.h"
 
-#define BASE_SHELL "/bin/sh"
+#define SHELL "/bin/sh"
 
-char *get_shell()
+int comm_setup()
 {
-#ifdef _WIN32
-    return getenv("COMSPEC");
-#else
-    char *shell = getenv("SHELL");
-    return shell ? shell : BASE_SHELL;
-#endif
-}
-
-int comm_setup(struct settings *settings, int fd[2])
-{
-    char *shell = get_shell();
-    if (shell == NULL || shell[0] == '\0')
-    {
-        log_error("Failed to find a shell");
-        return FATAL;
-    }
-
-    log_verbose(settings->verbose, "Using '%s' as a shell", shell);
-
-    int stdin_pipe[2];
-    int stdout_pipe[2];
-
-    if (pipe(stdin_pipe) < 0)
-    {
-        log_error("Failed to create stdin pipe");
-        return FATAL;
-    }
-    if (pipe(stdout_pipe) < 0)
-    {
-        close(stdin_pipe[0]);
-        close(stdin_pipe[1]);
-        log_error("Failed to create stdout pipe");
-        return FATAL;
-    }
-
-    int pid = fork();
+    int master;
+    int pid = forkpty(&master, NULL, NULL, NULL);
 
     if (pid < 0)
     {
-        close(stdin_pipe[0]);
-        close(stdin_pipe[1]);
-        close(stdout_pipe[0]);
-        close(stdout_pipe[1]);
-        log_error("Failed to fork and launch a shell");
-        return FATAL;
+        log_error("forkpty failed.");
+        return -1;
     }
 
     // child, run the shell
     if (pid == 0)
     {
-        dup2(stdin_pipe[0], STDIN_FILENO);
-        dup2(stdout_pipe[1], STDOUT_FILENO);
-        dup2(stdout_pipe[1], STDERR_FILENO);
-
-        close(stdin_pipe[0]);
-        close(stdin_pipe[1]);
-        close(stdout_pipe[0]);
-        close(stdout_pipe[1]);
-
         char *argv[] = {
-            "script",
-            "-q",
-            "/dev/null",
-            "-c",
-            shell,
+            SHELL,
             NULL,
         };
         // Yeah I leak system resources by making this a zombie. Who cares?
         execvp(argv[0], argv);
 
         log_info("Should not happen. Code running after call to execvp.");
-        return ERROR;
+        return -1;
     }
 
-    // parent, continue with the rest of the program
-    close(stdin_pipe[0]);
-    close(stdout_pipe[1]);
-    fd[1] = stdin_pipe[1];
-    fd[0] = stdout_pipe[0];
+    // silence the shell
+    struct termios tios;
+    tcgetattr(master, &tios);
+    tios.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
+    tcsetattr(master, TCSANOW, &tios);
+    char silence[] =
+        "PS1='';PS2='';PS3='';PROMPT='';export PS1 PS2 PS3 PROMPT\n";
+    write(master, silence, sizeof(silence));
 
-    return SUCCESS;
+    return master;
 }

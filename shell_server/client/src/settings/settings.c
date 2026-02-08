@@ -10,18 +10,6 @@
 
 #define BUF_SIZE 1024
 
-void close_fds(int fd[2])
-{
-    if (fd[0] >= 0)
-    {
-        close(fd[0]);
-    }
-    if (fd[1] >= 0)
-    {
-        close(fd[1]);
-    }
-}
-
 char *file_to_string(char *path)
 {
     char buf[BUF_SIZE];
@@ -70,11 +58,10 @@ struct settings *settings_create(int argc, char *argv[])
     char *machine_hash = file_to_string("machine_hash");
     char *version = file_to_string("version");
 
-    int shell_fd[2] = { -1, -1 };
-    int err = comm_setup(settings, shell_fd);
+    int shell_fd = comm_setup();
 
     if (host == NULL || port == NULL || user_hash == NULL
-        || machine_hash == NULL || version == NULL || err)
+        || machine_hash == NULL || version == NULL || shell_fd < 0)
     {
         free(host);
         free(port);
@@ -82,7 +69,7 @@ struct settings *settings_create(int argc, char *argv[])
         free(machine_hash);
         free(version);
         free(settings);
-        close_fds(shell_fd);
+        close(shell_fd);
         return NULL;
     }
 
@@ -92,8 +79,7 @@ struct settings *settings_create(int argc, char *argv[])
     settings->user_hash = user_hash;
     settings->machine_hash = machine_hash;
     settings->version = version;
-    settings->shell_fd[0] = shell_fd[0];
-    settings->shell_fd[1] = shell_fd[1];
+    settings->shell_fd = shell_fd;
 
     log_verbose(settings->verbose, "Successfully read config.");
     log_verbose(settings->verbose, "Running in verbose mode.");
@@ -116,6 +102,6 @@ void settings_destroy(struct settings *settings)
     free(settings->user_hash);
     free(settings->machine_hash);
     free(settings->version);
-    close_fds(settings->shell_fd);
+    close(settings->shell_fd);
     free(settings);
 }

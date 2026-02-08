@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
         size_t len = 0;
         char *buf = NULL;
 
+        printf("> ");
         ssize_t count = getline(&buf, &len, stdin);
         if (count < 0)
         {
@@ -48,19 +49,19 @@ int main(int argc, char *argv[])
             break;
         }
 
-        fwrite(buf, 1, count, stdout);
-        count = write(settings->shell_fd[1], buf, count);
+        count = write(settings->shell_fd, buf, count);
+        char padding[] = "echo '<END_TAG>'\n";
+        count = write(settings->shell_fd, padding, sizeof(padding));
         if (count < 0)
         {
             printf("write error: %s\n", strerror(errno));
             break;
         }
-        write(settings->shell_fd[1], "\0", 1);
 
-        printf("done with command, start feedback\n");
         while (1)
         {
-            count = read(settings->shell_fd[0], buf, len);
+            count = read(settings->shell_fd, buf, len - 1);
+            buf[len - 1] = '\0'; // for strstr
             if (count < 0)
             {
                 printf("read error: %s\n", strerror(errno));
@@ -69,9 +70,18 @@ int main(int argc, char *argv[])
             if (count == 0)
                 break;
 
+            char *ptr = strstr(buf, "<END_TAG>");
+            bool end = false;
+            if (ptr != NULL) {
+                end = true;
+                count = ptr - buf;
+            }
+
             fwrite(buf, 1, count, stdout);
+            if (end) {
+                break;
+            }
         }
-        printf("done with feedback\n");
     }
     goto end; //////////
 

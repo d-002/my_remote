@@ -14,7 +14,7 @@ struct settings {
 
     bool verbose;
 
-    int shell_fd[2];
+    int shell_fd;
 };
 
 struct settings *settings_create(int argc, char *argv[]);

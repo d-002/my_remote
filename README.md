@@ -33,8 +33,7 @@ Try it on your own machine! (trust)
 - A PHP-capable server, that supports sqlite3
 - C compiling suite on the target machines in case the auto-updates using static
   executables is not desired, as well as Python 3 for the installer
-- For cross-platform building when using the auto-updates system, `cosmocc`
-  and/or `musl-gcc`
+- For building when using the auto-updates system, `musl-gcc`
 
 **Setup:**
 
