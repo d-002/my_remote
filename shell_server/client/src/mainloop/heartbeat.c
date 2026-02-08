@@ -1,7 +1,7 @@
 #include "heartbeat.h"
 
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "logger/logger.h"
 #include "sock/sock.h"
@@ -12,7 +12,17 @@
 
 static int apply_patch(struct settings *settings, struct string patch)
 {
-    log_info("New version detected, applying...");
+    char *ptr = strchr(patch.data, '\n');
+    size_t len = ptr - patch.data;
+
+    char *new_version = patch.data;
+    new_version[len] = '\0';
+    patch.data += len + 1;
+
+    log_info("New version detected (%s, current is %s)", new_version, settings->version);
+    return SUCCESS;
+
+    log_info("Writing patch to file...");
     patch.data++;
 
     log_info("Restarting in a new process...");
@@ -59,7 +69,7 @@ static int heartbeat_prepare(struct settings *settings, struct state *state,
     if (url.data == NULL)
     {
         err = FATAL;
-        goto error;
+        goto end;
     }
 
     char *content_arr[] = {
@@ -72,19 +82,19 @@ static int heartbeat_prepare(struct settings *settings, struct state *state,
     if (content.data == NULL)
     {
         err = FATAL;
-        goto error;
+        goto end;
     }
 
     struct sock *sock = sock_request(settings, "POST", url.data, content);
     if (sock == NULL)
     {
         err = ERROR;
-        goto error;
+        goto end;
     }
 
     *out = sock;
 
-error:
+end:
     STRING_FREE(url);
     STRING_FREE(content);
 
@@ -100,19 +110,20 @@ int heartbeat(struct settings *settings, struct state *state)
 
     if (err != SUCCESS)
     {
-        goto error;
+        goto end;
     }
 
     struct string response = recv_content(sock);
     if (response.data == NULL)
     {
-        goto error;
+        err = ERROR;
+        goto end;
     }
 
     if (STRSTARTSWITH(response.data, "error"))
     {
         log_error("%s", response.data);
-        goto error;
+        goto end;
     }
     else if (STRSTARTSWITH(response.data, "update"))
     {
@@ -125,11 +136,11 @@ int heartbeat(struct settings *settings, struct state *state)
         err = apply_patch(settings, patch);
         if (err != SUCCESS)
         {
-            goto error;
+            goto end;
         }
     }
 
-error:
+end:
     sock_destroy(sock);
     STRING_FREE(response);
 

@@ -32,14 +32,13 @@ int mainloop(struct settings *settings, struct state *state)
             goto end;
         }
 
-        bool action = queue->length != 0;
-
         err = run_all_commands(settings, queue);
         if (err == FATAL || err == EXIT)
         {
             goto end;
         }
 
+        bool action = queue->length != 0;
         state_sleep(settings, state, action);
     }
 

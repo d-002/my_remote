@@ -49,7 +49,7 @@ if ($outData === "") {
     echo $error === "" ? "success" : "error: " . $error;
 }
 else {
-    echo "update\n" . $outData;
+    echo "update\n" . $user_version . "\n" . $outData;
 }
 
 $size = ob_get_length();

@@ -9,7 +9,7 @@
 + clear command history
 + pages styling
 
-- view global files version and sync update
+- view global files version and sync update, toggle to disable updates
 - send custom messages to a machine: restart, destroy (as special keywords in a
   command)
 - get machine state easily using an api call

@@ -17,7 +17,7 @@ void log_info(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
-    log_inner(stdout, "[INFO]  ", format, args);
+    log_inner(stdout, "[INFO]    ", format, args);
     va_end(args);
 }
 
@@ -25,7 +25,7 @@ void log_error(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
-    log_inner(stderr, "[ERROR] ", format, args);
+    log_inner(stderr, "[ERROR]   ", format, args);
     va_end(args);
 }
 

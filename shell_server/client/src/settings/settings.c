@@ -71,9 +71,14 @@ struct settings *settings_create(int argc, char *argv[])
         if (STREQL(argv[i], "-v"))
         {
             settings->verbose = true;
-            log_verbose(true, "Running in verbose mode.");
         }
     }
+
+    log_verbose(settings->verbose, "Successfully read config.");
+    log_verbose(settings->verbose, "Running in verbose mode.");
+    log_verbose(settings->verbose, "Machine hash - %s", settings->machine_hash);
+    log_verbose(settings->verbose, "User hash ---- %s", settings->user_hash);
+    log_verbose(settings->verbose, "Soft version - %s", settings->version);
 
     return settings;
 }
