@@ -9,6 +9,7 @@
 + clear command history
 + pages styling
 
+- handle and display status messages
 - view global files version and sync update, toggle to disable updates
 - send custom messages to a machine: restart, destroy (as special keywords in a
   command)
@@ -25,10 +26,13 @@
 + automatically update on new version
 + installer: ask for url, login, fetch the hashes and copy them to files, fetch
   the binary code from the server and run it.
-
-- execute simple commands, handle and listen for api calls
-- execute commands using a shell and pipe the streams
-- handle custom commands like restart and destroy
 - set state (heartbeat every 10s in idle mode, when receiving a message
   heartbeat every second for 30s and set state to ready, then back to idle if no
   further messages within these 30s)
+
+- send status messages: command timeout, errors related to the shell, feedback
+  for restart, destroy
+- use poll() and timeouts for reliability
+- execute simple commands, handle and listen for api calls
+- execute commands using a shell and pipe the streams
+- handle custom commands like restart and destroy

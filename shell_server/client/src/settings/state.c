@@ -6,6 +6,10 @@
 
 #include "logger/logger.h"
 
+#define SLEEP_IDLE 10
+#define SLEEP_ACTIVE 1
+#define IDLE_THRESHOLD 15
+
 struct state *state_create(void)
 {
     struct state *state = malloc(sizeof(struct state));
@@ -63,7 +67,7 @@ void state_sleep(struct settings *settings, struct state *state, bool action)
 char *state_str(enum state_values state)
 {
     static char idle_str[] = "idle";
-    static char active_str[] = "idle";
+    static char active_str[] = "active";
 
     switch (state)
     {

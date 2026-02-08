@@ -1,10 +1,6 @@
 #ifndef STATE_H
 #define STATE_H
 
-#define SLEEP_IDLE 10
-#define SLEEP_ACTIVE 1
-#define IDLE_THRESHOLD 15
-
 #include <stdbool.h>
 
 #include "settings/settings.h"

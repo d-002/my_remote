@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "comm/comm.h"
+#include "comm/comm_setup.h"
 #include "logger/logger.h"
 #include "utils/stringutils.h"
 
@@ -51,6 +51,7 @@ struct settings *settings_create(int argc, char *argv[])
             settings->verbose = true;
         }
     }
+    log_verbose(settings->verbose, "Running in verbose mode.");
 
     char *host = file_to_string("host");
     char *port = file_to_string("port");
@@ -58,7 +59,7 @@ struct settings *settings_create(int argc, char *argv[])
     char *machine_hash = file_to_string("machine_hash");
     char *version = file_to_string("version");
 
-    int shell_fd = comm_setup();
+    int shell_fd = comm_setup(settings);
 
     if (host == NULL || port == NULL || user_hash == NULL
         || machine_hash == NULL || version == NULL || shell_fd < 0)
@@ -82,7 +83,6 @@ struct settings *settings_create(int argc, char *argv[])
     settings->shell_fd = shell_fd;
 
     log_verbose(settings->verbose, "Successfully read config.");
-    log_verbose(settings->verbose, "Running in verbose mode.");
     log_verbose(settings->verbose, "Machine hash - %s", settings->machine_hash);
     log_verbose(settings->verbose, "User hash ---- %s", settings->user_hash);
     log_verbose(settings->verbose, "Soft version - %s", settings->version);

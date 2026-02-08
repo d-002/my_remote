@@ -1,9 +1,9 @@
-#ifndef LIST_H
-#define LIST_H
+#ifndef CMD_LIST_H
+#define CMD_LIST_H
 
 #include "queue/queue.h"
 #include "settings/settings.h"
 
 int list_commands(struct settings *settings, struct queue *queue);
 
-#endif /* ! LIST_H */
+#endif /* ! CMD_LIST_H */

@@ -2,8 +2,8 @@
 
 #include "heartbeat.h"
 #include "commands/command.h"
-#include "commands/list.h"
-#include "commands/run.h"
+#include "commands/cmd_list.h"
+#include "commands/cmd_run.h"
 #include "queue/queue.h"
 #include "utils/errors.h"
 
@@ -31,13 +31,13 @@ int mainloop(struct settings *settings, struct state *state)
             goto end;
         }
 
-        err = run_all_commands(settings, queue);
+        bool action;
+        err = run_all_commands(settings, queue, &action);
         if (err == FATAL || err == EXIT)
         {
             goto end;
         }
 
-        bool action = queue->length != 0;
         state_sleep(settings, state, action);
     }
 
