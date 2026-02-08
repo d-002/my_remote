@@ -1,9 +1,12 @@
 #include <stddef.h>
 
-#define _POSIX_C_SOURCE 200809L
+#ifndef _POSIX_C_SOURCE
+#    define _POSIX_C_SOURCE 200809L
+#endif /* ! _POSIX_C_SOURCE */
 #include <stdio.h>
 #include <unistd.h>
 
+#include "comm/comm.h"
 #include "errno.h"
 #include "logger/logger.h"
 #include "mainloop/mainloop.h"
@@ -44,7 +47,8 @@ int main(int argc, char *argv[])
             printf("getline error: %s\n", strerror(errno));
             break;
         }
-        if (count == 0) {
+        if (count == 0)
+        {
             printf("no input in getline\n");
             break;
         }
@@ -72,15 +76,33 @@ int main(int argc, char *argv[])
 
             char *ptr = strstr(buf, "<END_TAG>");
             bool end = false;
-            if (ptr != NULL) {
+            if (ptr != NULL)
+            {
                 end = true;
                 count = ptr - buf;
             }
 
             fwrite(buf, 1, count, stdout);
-            if (end) {
+            if (end)
+            {
                 break;
             }
+        }
+
+        if (errno == 5)
+        {
+            int fd = comm_setup();
+            if (fd < 0) {
+                log_error("Could not retry starting a shell.");
+                goto end;
+            }
+
+            char exit_cmd[] = "\nexit\n";
+            write(settings->shell_fd, exit_cmd, sizeof(exit_cmd));
+            close(settings->shell_fd);
+            settings->shell_fd = fd;
+            log_verbose(settings->verbose, "Successfully recovered from lost connection with shell.");
+            errno = 0;
         }
     }
     goto end; //////////
