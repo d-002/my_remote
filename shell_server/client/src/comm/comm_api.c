@@ -47,6 +47,80 @@ int send_sh(struct settings *settings, char *message)
     return SUCCESS;
 }
 
+static void remove_cr(char *buf, size_t *count)
+{
+    size_t j = 0;
+    for (size_t i = 0; i < *count; i++)
+    {
+        buf[j] = buf[i];
+        char c = buf[i];
+        j += c != '\r';
+    }
+
+    *count = j;
+    buf[*count] = '\0';
+}
+
+/*
+ * Add a sanitized command output to a stringbuilder.
+ * Sanitized means there should be no empty lines nor leading / trailing spaces.
+ */
+static int sanitize_to_sb(char *buf, size_t count, struct string_builder *sb,
+                          char *prev_c)
+{
+    remove_cr(buf, &count);
+
+    if (count == 0)
+    {
+        return SUCCESS;
+    }
+
+    size_t start = 0;
+    // If the last call ended in a newline, it will not have been added.
+    // Add it now when adding the first line if it exists, to compensate.
+    bool first_line = *prev_c != '\n';
+
+    for (size_t i = 0; i <= count; i++)
+    {
+        // iterate one extra time to finish any eventual lines
+        char c = i == count ? '\n' : buf[i];
+        if (c != '\n')
+            continue;
+
+        // just ending a line, check if it was not empty
+        if (i == start)
+        {
+            start = i + 1;
+            continue;
+        }
+
+        // add a newline between lines if needed
+        if (!first_line)
+        {
+            int err = string_builder_append(sb, "\n");
+            if (err != SUCCESS)
+            {
+                return err;
+            }
+        }
+
+        // add the line, but insert a terminating character
+        buf[i] = '\0';
+        int err = string_builder_append(sb, buf + start);
+        if (err != SUCCESS)
+        {
+            return err;
+        }
+        buf[i] = c;
+
+        first_line = false;
+        start = i + 1;
+    }
+
+    *prev_c = buf[count - 1];
+    return SUCCESS;
+}
+
 int recv_sh(struct settings *settings, struct string *out)
 {
     struct string_builder *sb = string_builder_create(NULL);
@@ -57,6 +131,7 @@ int recv_sh(struct settings *settings, struct string *out)
 
     int err = SUCCESS;
     char buf[BUF_SIZE];
+    char prev_c = '\0';
 
     size_t index = 0; // index while strstr_ing for the end tag
     while (1)
@@ -91,16 +166,7 @@ int recv_sh(struct settings *settings, struct string *out)
             }
         }
 
-        char *copy = calloc(count + 1, sizeof(char));
-        if (copy == NULL)
-        {
-            err = FATAL;
-            log_alloc_error("duplicate shell response");
-            break;
-        }
-
-        memcpy(copy, buf, count);
-        err = string_builder_append(sb, copy);
+        err = sanitize_to_sb(buf, count, sb, &prev_c);
 
         if (end || err != SUCCESS)
         {

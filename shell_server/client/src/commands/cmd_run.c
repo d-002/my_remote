@@ -1,6 +1,7 @@
 #include "cmd_run.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "comm/comm_api.h"
 #include "command.h"
@@ -27,7 +28,7 @@ static int run_command(struct settings *settings, struct command *command,
 
     if (err == SUCCESS)
     {
-        log_info("got back '%s'", out.data);
+        printf("%s\n", out.data);
         STRING_FREE(out);
     }
 
