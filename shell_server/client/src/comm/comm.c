@@ -34,13 +34,14 @@ int comm_setup()
     }
 
     // silence the shell
+    char silence[] =
+        "PS1='';PS2='';PS3='';PROMPT='';export PS1 PS2 PS3 PROMPT\n";
+    write(master, silence, sizeof(silence));
+
     struct termios tios;
     tcgetattr(master, &tios);
     tios.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
     tcsetattr(master, TCSANOW, &tios);
-    char silence[] =
-        "PS1='';PS2='';PS3='';PROMPT='';export PS1 PS2 PS3 PROMPT\n";
-    write(master, silence, sizeof(silence));
 
     return master;
 }
