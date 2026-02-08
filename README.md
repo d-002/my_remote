@@ -6,8 +6,8 @@ Tool suite for remote shells and whatnot
 > This code should not be used maliciously and is there for educational
 > purposes, to provide insights for detection development, as well as show some
 > consequences of a bad usage of things like a shared file storage.
-> I am only doing this to research different technologies (php, machines
-> communication, C file descriptors...)
+> I am only doing this to research different technologies (php, socket
+> communication in C...)
 > 
 > Do not use this code maliciously, namely to attack or scan real devices.
 > Unauthorized use is illegal and violates GitHub policy.
@@ -15,8 +15,8 @@ Tool suite for remote shells and whatnot
 ## fs_remote
 
 A basic client/server protocol using a file system for communication.  
-Allows things like a basic remote shell, and easily allows more features to be
-added on top of it.
+Allows things like a basic remote shell and features could easily be added on
+top of it.
 
 **Requirements:**
 
@@ -31,9 +31,10 @@ Try it on your own machine! (trust)
 **Requirements:**
 
 - A PHP-capable server, that supports sqlite3
-- C compiling suite on the target machines, as well as Python 3 for the
-  installer
-- Optionally, for cross-platform building, `cosmocc` and `musl-gcc`
+- C compiling suite on the target machines in case the auto-updates using static
+  executables is not desired, as well as Python 3 for the installer
+- For cross-platform building when using the auto-updates system, `cosmocc`
+  and/or `musl-gcc`
 
 **Setup:**
 
@@ -44,12 +45,13 @@ Try it on your own machine! (trust)
   on these machines.
 - Run the remote shell installer on the target machine, which will query for the
   url to your server, as well as your login information.
-  This registers the client and makes it visible in your dashboard.
+  This registers and launches the client and makes it visible in your dashboard.
 
 The remote shell program sends a heartbeat to the server, which also serves as
 a way to check its software version.
-Any new version is automatically installed on the targets by querying the code
-on the server, updating the local files and restarting the program.
+If you choose to enable automatic software updates, you can provide a compiled
+executable in your dashboard and remote shells will automatically update to that
+provided version.
 Software versions are handled separately for all website users, to avoid
 breaking changes.
 
@@ -68,3 +70,5 @@ queue and edit it, or write to the output stream (combined stdout and stderr).
 
 Server admins have full control and can view all keys but this should not really
 matter (and I'm too lazy to fix this).
+Additionally, as data is not encrypted you are advised to use complementary
+end-to-end encryption if safety is a concern.
