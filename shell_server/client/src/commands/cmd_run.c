@@ -9,6 +9,8 @@
 #include "sock/sockutils.h"
 #include "utils/errors.h"
 
+#define FALLBACK_STRING ""
+
 static int send_command_output(struct settings *settings, struct string output)
 {
     char *url_arr[] = {
@@ -19,8 +21,28 @@ static int send_command_output(struct settings *settings, struct string output)
         NULL,
     };
 
+    // copy output.data because it could get overriden by a fallback string in
+    // case there was no output
+    char *ptr = output.data;
+    if (output.data == NULL) {
+        output.data = FALLBACK_STRING;
+    }
+
+    printf("%s\n", output.data);
+
+    // need to encode newlines to not pollute the output
+    for (size_t i = 0; i < output.length; i++) {
+        char c = output.data[i];
+        if (c != '\n') {
+            continue;
+        }
+
+        output.data[i] = 0x7; // let's hope this character (bell) is never used
+    }
+
     struct string response = NULL_STRING;
     int err = post_wrapper(settings, url_arr, output, &response);
+    output.data = ptr;
     STRING_FREE(response);
     return err;
 }
@@ -61,7 +83,6 @@ static int run_command(struct settings *settings, struct command *command,
 
     if (err == SUCCESS)
     {
-        printf("%s\n", out.data);
         err = send_command_output(settings, out);
         if (err == SUCCESS)
         {

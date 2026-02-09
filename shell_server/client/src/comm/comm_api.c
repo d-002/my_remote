@@ -155,7 +155,7 @@ int recv_sh(struct settings *settings, struct string *out)
             if (!has_read)
             {
                 log_error("Shell read timed out after %dms.", READ_TIMEOUT_MS);
-                err = ERROR;
+                err = SUCCESS; // mark as success to skip reading this command
             }
             break;
         }

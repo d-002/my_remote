@@ -31,7 +31,7 @@ int mainloop(struct settings *settings, struct state *state)
             goto end;
         }
 
-        bool action;
+        bool action = false;
         err = run_all_commands(settings, queue, &action);
         if (err == FATAL || err == EXIT)
         {
