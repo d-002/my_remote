@@ -93,7 +93,8 @@ function getMachineState($db, $machine_hash) {
 SELECT
     CASE
         WHEN (:time - machines.last_heartbeat) < 3 THEN 'active'
-        ELSE 'idle'
+        WHEN (:time - machines.last_heartbeat) < 15 THEN 'idle'
+        ELSE 'off'
     END AS state
 FROM machines
 WHERE machines.hash = :hash");

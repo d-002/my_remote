@@ -15,6 +15,22 @@ let lastCommand;
 
 // ===== functions =====
 
+function updateStates() {
+    Array.from(machinesList.children).forEach(elt => {
+        const hash = elt.getAttribute("machine-hash");
+        get("/api/get_machine_state.php?machine=" + hash, text => {
+            if (text.startsWith("error")) {
+                alert(text);
+                return;
+            }
+
+            text = text.trim();
+            elt.className = text;
+            elt.title = "This machine is " + text;
+        });
+    });
+}
+
 function getCommands(callback) {
     get("/api/list_commands.php?user=" + user_hash + "&machine="
         + selected.hash, callback);
@@ -154,12 +170,15 @@ machinesList.addEventListener("click", evt => {
 
         selected.index = children.indexOf(evt.target);
         updateSelection();
+        updateStates();
         updateShell();
     }
 });
 
 startStateInterval(callback => {
     getCommands(text => {
+        updateStates();
+
         const textTrimmed = text.trimEnd();
         const last = textTrimmed.substring(textTrimmed.lastIndexOf("\n") + 1);
 

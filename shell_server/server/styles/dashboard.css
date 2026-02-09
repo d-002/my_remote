@@ -98,6 +98,8 @@ ul {
 }
 
 li {
+    position: relative;
+
     box-sizing: border-box;
     width: 100%;
     margin: .7em 0;
@@ -123,6 +125,33 @@ li:is(:hover, .selected) {
 
 li::marker {
     content: none;
+}
+
+li::after {
+    content: "";
+    position: absolute;
+
+    display: block;
+    width: 1em;
+    height: 1em;
+
+    top: 50%;
+    right: 0;
+    transform: translate(-50%, -50%);
+
+    --state-bg: #d55f5f;
+
+    background-color: var(--state-bg);
+    border: .15em solid var(--bg1);
+    border-radius: .3em;
+}
+
+li.active::after {
+    --state-bg: #5ead5e;
+}
+
+li.idle::after {
+    --state-bg: #dfb056;
 }
 
 #right {
