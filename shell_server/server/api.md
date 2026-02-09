@@ -8,8 +8,8 @@
 + change machines names
 + clear command history
 + pages styling
++ update machines data etc periodically
 
-- update machines data etc periodically
 - get machines state easily using an api call
 - handle and display status messages
 - send custom commands to a machine: restart, destroy (as special keywords in a

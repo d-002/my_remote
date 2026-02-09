@@ -86,4 +86,26 @@ WHERE links.id = :link_id");
 
     return "";
 }
+
+function getMachineState($db, $machine_hash) {
+    try {
+        $st = $db->prepare("
+SELECT
+    CASE
+        WHEN (:time - machines.last_heartbeat) < 3 THEN 'active'
+        ELSE 'idle'
+    END AS state
+FROM machines
+WHERE machines.hash = :hash");
+        $st->execute(["hash" => $machine_hash, "time" => time()]);
+    }
+    catch (Exception $e) {
+        return NULL;
+    }
+
+    $state = $st->fetchColumn();
+    $st->closeCursor();
+
+    return $state === false ? NULL : $state;
+}
 ?>

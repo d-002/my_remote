@@ -26,6 +26,6 @@ else {
 echo $error === "" ? "success" : "error: " . $error;
 
 $size = ob_get_length();
-ob_end_flush();
 header("Content-Length: " . $size);
+ob_end_flush();
 ?>

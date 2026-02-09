@@ -74,7 +74,7 @@ struct sock *sock_request(struct settings *settings, char *request_type, char *p
     return sock;
 }
 
-static int update_content_length(struct string line, int *found, ssize_t *out)
+static int update_content_length(struct string line, bool *found, ssize_t *out)
 {
     char *ptr = strchr(line.data, ':');
     if (ptr == NULL)
@@ -89,7 +89,7 @@ static int update_content_length(struct string line, int *found, ssize_t *out)
 
     if (STRSTARTSWITH(line.data, "content-length"))
     {
-        *found = 1;
+        *found = true;
         *out = atoi(line.data + index + (line.data[index + 1] == ' '));
     }
 
@@ -101,8 +101,8 @@ static int find_content_length(struct sock *sock,
                                struct string_builder *line_sb, ssize_t *out)
 {
     char buf[LINE_SIZE];
-    int first_line = 1;
-    int found = 0;
+    bool first_line = true;
+    bool found = false;
 
     bool done = false;
     while (!done)
@@ -145,7 +145,7 @@ static int find_content_length(struct sock *sock,
                 }
                 else if (first_line)
                 {
-                    first_line = 0;
+                    first_line = false;
                 }
                 else
                 {
@@ -177,7 +177,7 @@ static int find_content_length(struct sock *sock,
 
     if (!found)
     {
-        log_error("Could not find content_length in response, assuming only "
+        log_error("Could not find Content-Length in response, assuming only "
                   "one packet");
     }
     return SUCCESS;
