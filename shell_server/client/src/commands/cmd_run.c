@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cmd_special.h"
 #include "comm/comm_api.h"
 #include "command.h"
 #include "logger/logger.h"
@@ -24,16 +25,19 @@ static int send_command_output(struct settings *settings, struct string output)
     // copy output.data because it could get overriden by a fallback string in
     // case there was no output
     char *ptr = output.data;
-    if (output.data == NULL) {
+    if (output.data == NULL)
+    {
         output.data = FALLBACK_STRING;
     }
 
     printf("%s\n", output.data);
 
     // need to encode newlines to not pollute the output
-    for (size_t i = 0; i < output.length; i++) {
+    for (size_t i = 0; i < output.length; i++)
+    {
         char c = output.data[i];
-        if (c != '\n') {
+        if (c != '\n')
+        {
             continue;
         }
 
@@ -69,7 +73,7 @@ static int run_command(struct settings *settings, struct command *command,
     if (command->is_read || command->sender != USER)
         return SUCCESS;
 
-    log_verbose(settings->verbose, "Running command '%s'", command->content);
+    printf("$ %s\n", command->content);
     *action = true;
 
     int err = send_sh(settings, command->content);
@@ -94,13 +98,47 @@ static int run_command(struct settings *settings, struct command *command,
     return err;
 }
 
+static int run_special(struct settings *settings, struct command *command,
+                       bool *action)
+{
+    if (command->is_read || command->sender != USER)
+        return SUCCESS;
+
+    int err = SUCCESS;
+    if (STREQL(command->content, "restart"))
+    {
+        *action = true;
+        err = restart(settings);
+    }
+    else if (STREQL(command->content, "destroy"))
+    {
+        *action = true;
+        err = destroy(settings);
+    }
+    else
+    {
+        return send_report(settings, log_error, "Unknown special action type.");
+    }
+
+    if (err == SUCCESS || err == EXIT)
+    {
+        if (err == SUCCESS)
+        {
+            err = mark_command_as_read(settings);
+        }
+    }
+
+    return err;
+}
+
 int run_all_commands(struct settings *settings, struct queue *queue,
                      bool *action)
 {
     for (struct command *command = queue_dequeue(queue); command;
          command = queue_dequeue(queue))
     {
-        int err = run_command(settings, command, action);
+        int err = command->is_special ? run_special(settings, command, action)
+                                      : run_command(settings, command, action);
         command_destroy(command);
 
         if (err == FATAL || err == EXIT)

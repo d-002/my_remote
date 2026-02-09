@@ -5,6 +5,8 @@
 
 #define NO_LINE -1
 
+typedef void (*log_func)(const char *format, ...);
+
 void log_info(const char *format, ...);
 void log_error(const char *format, ...);
 void log_verbose(bool verbose, const char *format, ...);

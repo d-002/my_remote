@@ -16,6 +16,7 @@
   command)
 - view global files version and sync update, toggle to disable updates
 - skip / remove commands
+- log out after some time
 
 ## machine
 + register and attach to user

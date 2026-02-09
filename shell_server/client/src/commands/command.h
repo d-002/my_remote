@@ -15,6 +15,7 @@ struct command
     char *content;
     enum command_sender sender;
     bool is_read;
+    bool is_special;
 };
 
 struct command *command_create(char *stream, size_t length);

@@ -28,6 +28,16 @@ struct command *command_create(char *stream, size_t length)
     stream = ptr;
     command->is_read = memcmp(stream, "read", 4) == 0;
 
+    ptr = strchr(stream, ' ') + 1;
+    if (ptr == NULL) {
+        free(command);
+        return NULL;
+    }
+
+    length -= ptr - stream;
+    stream = ptr;
+    command->is_special = memcmp(stream, "normal", 6) != 0;
+
     // copy command content
 
     ptr = strchr(stream, ':') + 2;

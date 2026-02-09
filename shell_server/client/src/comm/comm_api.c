@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "comm_setup.h"
+#include "commands/cmd_special.h"
 #include "logger/logger.h"
 #include "utils/errors.h"
 #include "utils/stringbuilder.h"
@@ -29,7 +30,7 @@ int send_sh(struct settings *settings, char *message)
         ssize_t count = write(settings->shell_fd, message, length);
         if (count < 0)
         {
-            log_error("Failed to send command to shell");
+            send_report(settings, log_error, "Failed to send command to shell");
             return ERROR;
         }
 
@@ -40,7 +41,8 @@ int send_sh(struct settings *settings, char *message)
     ssize_t count = write(settings->shell_fd, "\n", 1);
     if (count < 0)
     {
-        log_error("Failed to send command postfix newline to shell");
+        send_report(settings, log_error,
+                    "Failed to send command postfix newline to shell");
         return ERROR;
     }
 
@@ -145,7 +147,7 @@ int recv_sh(struct settings *settings, struct string *out)
             poll(&pfd, 1, has_read ? READ_TIMEOUT_MS : FIRST_READ_TIMEOUT_MS);
         if (res < 0)
         {
-            log_error("Failed to poll shell events.");
+            send_report(settings, log_error, "Failed to poll shell events.");
             err = ERROR;
             break;
         }
@@ -154,7 +156,7 @@ int recv_sh(struct settings *settings, struct string *out)
         {
             if (!has_read)
             {
-                log_error("Shell read timed out after %dms.", READ_TIMEOUT_MS);
+                send_report(settings, log_error, "Shell read timed out.");
                 err = SUCCESS; // mark as success to skip reading this command
             }
             break;
@@ -163,7 +165,7 @@ int recv_sh(struct settings *settings, struct string *out)
         ssize_t count = read(settings->shell_fd, buf, BUF_SIZE - 1);
         if (count < 0)
         {
-            log_error("Failed to read shell answer");
+            send_report(settings, log_error, "Failed to read shell answer");
             err = ERROR;
             break;
         }
@@ -194,7 +196,8 @@ int recv_sh(struct settings *settings, struct string *out)
         }
         else
         {
-            log_error("Could not retry starting a shell.");
+            send_report(settings, log_error,
+                        "Could not retry starting a shell.");
         }
     }
 

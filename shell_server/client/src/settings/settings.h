@@ -3,8 +3,14 @@
 
 #include <stdbool.h>
 
+#define HOST_FILE "host"
+#define PORT_FILE "port"
+#define USER_HASH_FILE "user_hash"
+#define MACHINE_HASH_FILE "machine_hash"
+#define VERSION_FILE "version"
+
 struct settings {
-    char *argv0;
+    char **argv;
 
     char *host;
     char *port;

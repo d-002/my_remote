@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "commands/cmd_special.h"
 #include "logger/logger.h"
 #include "sock/sockutils.h"
 #include "utils/errors.h"
@@ -54,7 +55,7 @@ static int apply_patch(struct settings *settings, struct string patch)
              settings->version);
 
     log_info("Writing new version to file...");
-    int err = write_to_file(settings, "version", new_version, version_len);
+    int err = write_to_file(settings, VERSION_FILE, new_version, version_len);
     if (err != SUCCESS)
     {
         return err;
@@ -64,14 +65,14 @@ static int apply_patch(struct settings *settings, struct string patch)
     patch.length -= version_len + 1;
 
     log_info("Writing new software to file...");
-    size_t filename_len = strlen(settings->argv0);
+    size_t filename_len = strlen(settings->argv[0]);
     char *temp_name = calloc(filename_len + 2, sizeof(char));
     if (temp_name == NULL)
     {
         log_alloc_error("temp file name allocation");
         return FATAL;
     }
-    memcpy(temp_name, settings->argv0, filename_len);
+    memcpy(temp_name, settings->argv[0], filename_len);
     temp_name[filename_len] = '~';
 
     err = write_to_file(settings, temp_name, patch.data, patch.length);
@@ -83,7 +84,7 @@ static int apply_patch(struct settings *settings, struct string patch)
 
     log_info("Renaming temporary file to current file...");
     chmod(temp_name, 0755);
-    rename(temp_name, settings->argv0);
+    rename(temp_name, settings->argv[0]);
 
     free(temp_name);
     return err;
@@ -97,29 +98,7 @@ static int update(struct settings *settings, struct string patch)
         return err;
     }
 
-    log_info("Restarting in a new process...");
-    int pid = fork();
-
-    if (pid < 0)
-    {
-        log_info("Failed to start new process.");
-        return ERROR;
-    }
-
-    if (pid == 0)
-    {
-        char *argv[] = {
-            settings->argv0,
-            NULL,
-        };
-
-        execvp(argv[0], argv);
-
-        log_info("Should not happen. Code running after call to execvp.");
-        return ERROR;
-    }
-
-    return EXIT;
+    return restart(settings);
 }
 
 int heartbeat(struct settings *settings, struct state *state)
