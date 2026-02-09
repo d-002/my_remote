@@ -10,11 +10,12 @@
 + pages styling
 
 - update machines data etc periodically
-- handle and display status messages
 - get machines state easily using an api call
-- send custom messages to a machine: restart, destroy (as special keywords in a
+- handle and display status messages
+- send custom commands to a machine: restart, destroy (as special keywords in a
   command)
 - view global files version and sync update, toggle to disable updates
+- skip / remove commands
 
 ## machine
 + register and attach to user

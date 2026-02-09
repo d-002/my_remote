@@ -11,44 +11,56 @@ const selected = {
     hash: null,
 };
 
+let lastCommand;
+
 // ===== functions =====
 
-function updateShell() {
+function getCommands(callback) {
+    get("/api/list_commands.php?user=" + user_hash + "&machine="
+        + selected.hash, callback);
+}
+
+function updateShell(text) {
+    // text can be null, in this case compute and callback
+    if (text == null) {
+        return getCommands(updateShell);
+    }
+
     if (selected.index < 0) {
         shell.innerHTML = "";
         return;
     }
 
-    get("/api/list_commands.php?user=" + user_hash + "&machine="
-        + selected.hash, text => {
-        shell.innerHTML = "";
+    shell.innerHTML = "";
 
-        if (text.startsWith("error")) {
-            alert(text);
+    if (text.startsWith("error")) {
+        alert(text);
+        return;
+    }
+
+    text.split("\n").forEach(command => {
+        if (command === "") {
             return;
         }
 
-        text.split("\n").forEach(line => {
-            if (line === "") {
-                return;
-            }
+        command = command.replaceAll(String.fromCharCode(0x7), "\n");
 
+        const colonIndex = command.indexOf(":");
+        const words = command.substring(0, colonIndex).split(" ");
+        const who = words[0], state = words[1], timestamp = words[2];
+        let message = command.substring(colonIndex + 1);
+
+        let pending = false;
+        if (who === "user") {
+            message = "$ " + message;
+            if (state === "pending") {
+                pending = true;
+            }
+        }
+        message.split("\n").forEach(line => {
             const p = document.createElement("p");
 
-            const colonIndex = line.indexOf(":");
-            const words = line.substring(0, colonIndex).split(" ");
-            const who = words[0], state = words[1], timestamp = words[2];
-            const message = line.substring(colonIndex + 1);
-
-            let pending = false;
-            if (who === "user") {
-                p.textContent += "$ ";
-                if (state === "pending") {
-                    pending = true;
-                }
-            }
-
-            p.textContent += message;
+            p.textContent += line;
             if (pending) {
                 p.className = "pending";
                 p.title = "[not received] ";
@@ -57,6 +69,8 @@ function updateShell() {
             shell.appendChild(p);
         });
     });
+
+    shell.scrollTop = shell.scrollHeight;
 }
 
 function updateSelection() {
@@ -86,6 +100,7 @@ function sendCommand() {
             else {
                 updateShell();
                 command.value = "";
+                stateUpdate(true);
             }
     });
 }
@@ -131,6 +146,8 @@ function renameMachine() {
 
 // ===== listeners =====
 
+updateSelection();
+
 machinesList.addEventListener("click", evt => {
     if (evt.target.tagName.toUpperCase() === "LI") {
         const children = Array.from(evt.target.parentNode.children);
@@ -141,7 +158,18 @@ machinesList.addEventListener("click", evt => {
     }
 });
 
-// ===== main =====
+startStateInterval(callback => {
+    getCommands(text => {
+        const textTrimmed = text.trimEnd();
+        const last = textTrimmed.substring(textTrimmed.lastIndexOf("\n") + 1);
 
-updateSelection();
-updateShell();
+        if (last === lastCommand) {
+            return callback(false);
+        }
+
+        console.log("Detected new commands, refreshing");
+        updateShell(text);
+        lastCommand = last;
+        return callback(true);
+    });
+});

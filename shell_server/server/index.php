@@ -105,6 +105,7 @@ catch (Exception $e) {
 
 </body>
 
-<script src="/scripts/utils.js"></script>
+<script src="/scripts/http-utils.js"></script>
+<script src="/scripts/state.js"></script>
 <script src="/scripts/dashboard.js"></script>
 </html>
