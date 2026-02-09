@@ -2,7 +2,7 @@ import os
 import requests
 import subprocess
 from urllib.parse import urlparse
-from getpass import getpass
+from getpass import getuser, getpass
 
 # make the server think we are not a bot
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
@@ -77,9 +77,12 @@ print('Make sure you created an user there first.')
 username = input('Username: ')
 password = getpass('Password: ')
 
+user = getuser()
+user_safe = ''.join(c if c.isalnum() else '_' for c in user)
+
 print('\nLogging in, retrieving user and machine hashes...')
 content = get_file(url + '/api/new_machine.php?username=' + username
-                   + '&password=' + password)
+                   + '&password=' + password + '&name=' + user_safe)
 if (type(content) != bytes):
     print('Error while retrieving hashes')
     exit(1)

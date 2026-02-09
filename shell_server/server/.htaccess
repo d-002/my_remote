@@ -9,3 +9,6 @@ Options -Indexes
 Header set Cache-Control "no-cache, no-store, must-revalidate"
 Header set Expires 0
 </IfModule>
+
+# force connection: close
+Header set Connection close
