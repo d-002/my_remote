@@ -2,16 +2,17 @@
 // must be included
 my_include("/utils/db-machines.php");
 
-function enqueueCommand($db, $link_id, $is_user, $content) {
+function enqueueCommand($db, $link_id, $is_user, $status, $content) {
     try {
         $st = $db->prepare("
 INSERT INTO commands
-    (link_id, is_user, timestamp, content)
+    (link_id, is_user, status, timestamp, content)
 VALUES
-    (:link_id, :is_user, :timestamp, :content)");
+    (:link_id, :is_user, :status, :timestamp, :content)");
 
         $st->execute(["link_id" => $link_id,
                       "is_user" => $is_user,
+                      "status" => $status,
                       "timestamp" => time(),
                       "content" => $content]);
     }

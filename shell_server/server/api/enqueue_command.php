@@ -7,6 +7,10 @@ my_include("/utils/db-commandlist.php");
 
 $db = getDB();
 $link_id = getUserMachineLink($db, $_REQUEST["user"], $_REQUEST["machine"]);
+$status = $_REQUEST["status"];
+if ($status === NULL) {
+    $status = "normal";
+}
 
 $error = "";
 if ($link_id === NULL) {
@@ -20,7 +24,7 @@ else {
         $error = "Could not read POST raw content";
     }
 
-    $error = enqueueCommand($db, $link_id, $is_user, $content);
+    $error = enqueueCommand($db, $link_id, $is_user, $status, $content);
 }
 
 echo $error === "" ? "success" : "error: " . $error;

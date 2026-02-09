@@ -74,6 +74,7 @@ CREATE TABLE commands (
     link_id INTEGER,
     is_user INTEGER,
     is_read INTEGER DEFAULT 0,
+    status TEXT,
     timestamp INTEGER,
     content TEXT,
     FOREIGN KEY(link_id) REFERENCES links(id)

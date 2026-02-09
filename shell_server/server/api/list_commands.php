@@ -25,6 +25,8 @@ else {
         $prefix .= " ";
         $prefix .= $current["is_read"] === 0 ? "pending" : "read";
         $prefix .= " ";
+        $prefix .= $current["status"];
+        $prefix .= " ";
         $prefix .= $current["timestamp"];
         $prefix .= ": ";
         echo $prefix . $current["content"] . "\n";

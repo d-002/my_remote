@@ -195,6 +195,10 @@ li.idle::after {
     color: #957777;
 }
 
+#shell p.special {
+    color: #c7ab3f;
+}
+
 #command-form {
     display: flex;
     align-items: center;

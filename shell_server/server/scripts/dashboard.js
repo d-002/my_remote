@@ -64,27 +64,50 @@ function updateShell(text) {
 
         const colonIndex = command.indexOf(":");
         const words = command.substring(0, colonIndex).split(" ");
-        const who = words[0], state = words[1], timestamp = words[2];
+        const who = words[0], read_state = words[1];
+        const status = words[2], timestamp = words[2];
         let message = command.substring(colonIndex + 1);
 
-        let pending = false;
-        if (who === "user") {
-            message = "$ " + message;
-            if (state === "pending") {
-                pending = true;
+        // normal message, careful about encoded newlines and how they are
+        // displayed
+        if (status === "normal") {
+            let pending = false;
+            if (who === "user") {
+                message = "$ " + message;
+                if (read_state === "pending") {
+                    pending = true;
+                }
             }
-        }
-        message.split("\n").forEach(line => {
-            const p = document.createElement("p");
+            message.split("\n").forEach(line => {
+                const p = document.createElement("p");
 
-            p.textContent += line;
-            if (pending) {
-                p.className = "pending";
-                p.title = "[not received] ";
+                p.textContent += line;
+                if (pending) {
+                    p.className = "pending";
+                    p.title = "[not received] ";
+                }
+                p.title += new Date(parseInt(timestamp));
+                shell.appendChild(p);
+            });
+        }
+        // a status report from the machine
+        else {
+            const p = document.createElement("p");
+            p.className = "special";
+
+            if (status === "report") {
+                p.textContent = "[machine report]: " + message;
             }
-            p.title += new Date(parseInt(timestamp));
+            // a custom request from the user
+            else if (status === "request") {
+                p.textContent = "[user request]: " + message;
+            }
+            else {
+                p.textContent = "[unknown status]: " + message;
+            }
+
             shell.appendChild(p);
-        });
+        }
     });
 
     shell.scrollTop = shell.scrollHeight;
@@ -111,14 +134,14 @@ function sendCommand() {
     const content = command.value;
     post("/api/enqueue_command.php?user=" + user_hash + "&machine="
         + selected.hash + "&is_user", content, text => {
-            if (text.startsWith("error")) {
-                alert(text);
-            }
-            else {
-                updateShell();
-                command.value = "";
-                stateUpdate(true);
-            }
+        if (text.startsWith("error")) {
+            alert(text);
+        }
+        else {
+            updateShell();
+            command.value = "";
+            stateUpdate(true);
+        }
     });
 }
 
@@ -157,6 +180,46 @@ function renameMachine() {
         else {
             machinesList.children[selected.index].textContent = newName;
             updateSelection();
+        }
+    });
+}
+
+function restartMachine() {
+    post("/api/enqueue_command.php?user=" + user_hash + "&machine="
+        + selected.hash + "&is_user&status=request", "restart", text => {
+        if (text.startsWith("error")) {
+            alert(text);
+        }
+        else {
+            updateShell();
+            command.value = "";
+            stateUpdate(true);
+        }
+    });
+}
+
+function destroyMachine() {
+    post("/api/enqueue_command.php?user=" + user_hash + "&machine="
+        + selected.hash + "&is_user&status=request", "destroy", text => {
+        if (text.startsWith("error")) {
+            alert(text);
+        }
+        else {
+            updateShell();
+            command.value = "";
+            stateUpdate(true);
+        }
+    });
+}
+
+function destroyLink() {
+    post("/api/destroy_link.php?user=" + user_hash + "&machine="
+        + selected.hash, null, text => {
+        if (text.startsWith("error")) {
+            alert(text);
+        }
+        else {
+            document.location.reload();
         }
     });
 }
