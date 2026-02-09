@@ -262,8 +262,7 @@ int post_wrapper(struct settings *settings, char *url_arr[], struct string conte
     STRING_FREE(url);
     if (sock == NULL)
     {
-        err = ERROR;
-        goto error;
+        return ERROR;
     }
 
     struct string response = recv_content(sock);
