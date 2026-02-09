@@ -47,9 +47,13 @@ function getUserMachineCommands($db, $user_hash, $machine_hash) {
 
     try {
         $st = $db->prepare("
-SELECT commands.*
-FROM commands
-WHERE commands.link_id = :link_id
+SELECT sub.* FROM (
+    SELECT commands.*
+    FROM commands
+    WHERE commands.link_id = :link_id
+    ORDER BY commands.id DESC
+    LIMIT 50
+) as sub
 ORDER BY commands.id ASC");
 
         $st->execute(["link_id" => $link_id]);
