@@ -51,8 +51,6 @@ else if ($user === NULL) {
     <div id="header-right">
         <a href="/logout">Log out</a>
     </div>
-
-    <p id="header-after">Your user hash: <?= $user_hash ?></p>
 </div>
 
 <div id="main">
