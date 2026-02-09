@@ -10,12 +10,11 @@
 + pages styling
 + update machines data etc periodically
 + get machines state easily using an api call
-
-- handle and display status messages
-- send custom commands to a machine: restart, destroy (as special keywords in a
++ handle and display status messages
++ send custom commands to a machine: restart, destroy (as special keywords in a
   command)
+
 - view global files version and sync update, toggle to disable updates
-- skip / remove commands
 - log out after some time
 
 ## machine
@@ -34,7 +33,6 @@
 + use poll() and timeouts for reliability
 + execute simple commands, handle and listen for api calls
 + execute commands using a shell and pipe the streams
-
-- send status messages: command timeout, errors related to the shell, feedback
++ send status messages: command timeout, errors related to the shell, feedback
   for restart, destroy
-- handle custom commands like restart and destroy
++ handle custom commands like restart and destroy

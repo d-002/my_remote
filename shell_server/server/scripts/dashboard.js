@@ -169,8 +169,16 @@ function renameMachine() {
     }
 
     const oldName = machinesList.children[selected.index].textContent;
-    const newName = prompt("Enter new machine name: (previous was '" +
+    let newName = prompt("Enter new machine name: (previous was '" +
         oldName + "')");
+    if (newName === null) {
+        return;
+    }
+    newName = newName.trim();
+    if (newName.length === 0) {
+        alert("Empty name");
+        return;
+    }
 
     get("/api/rename_machine.php?user=" + user_hash + "&machine="
         + selected.hash + "&name=" + newName, text => {

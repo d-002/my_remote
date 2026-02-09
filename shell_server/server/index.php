@@ -58,11 +58,12 @@ else if ($user === NULL) {
     <h2>My machines</h2>
     <ul id="machines-list">
 <?php
+$hasMachines = false;
 try {
     $st = listMachines($db, $_SESSION["username"]);
-    $hasMachines = $st->rowCount() > 0;
 
     while (true) {
+        $hasMachines = true;
         $current = $st->fetch();
         if ($current === false) {
             break;
@@ -80,7 +81,9 @@ catch (Exception $e) {
 ?>
     </ul>
 
-    <p class="small"><?= $hasMachines ? "Use the installer to add more machines." : "You have no machines.<br>Use the installer to add one." ?></p>
+    <p class="small"><?= $hasMachines ?
+        "Use the installer to add more machines."
+        : "You have no machines.<br>Use the installer to add one." ?></p>
 </div>
 
 <div id="right">
