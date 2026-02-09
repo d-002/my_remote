@@ -4,49 +4,51 @@ import subprocess
 from urllib.parse import urlparse
 from getpass import getpass
 
-def check_server(url):
+# make the server think we are not a bot
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+
+def check_server(url: str) -> tuple[str | None, str | None]:
     try:
-        x = requests.head(url, stream=True)
+        x = requests.head(url, stream=True, headers=headers)
         if x.ok:
             parsed = urlparse(x.url)
-            return True, parsed.hostname, parsed.port if parsed.port else '80'
-        return False, None, None
+            return parsed.hostname, str(parsed.port) if parsed.port else '80'
+        return None, None
     except requests.exceptions.MissingSchema:
         print('Make sure you specify the protocol (http / https) before the URL.')
-        return False, None, None
+        return None, None
     except requests.exceptions.ConnectionError:
-        return False, None, None
+        return None, None
 
-def decode_and_handle_error(content, is_binary):
-    if not is_binary:
-        content = content.decode()
-        if content.startswith("error"):
-            print(content)
-            exit(1)
+def decode_and_handle_error(content: bytes) -> bytes:
+    if content.startswith(b"error"):
+        print(content.decode())
+        exit(1)
 
     return content
 
-def get_file(url, is_binary):
+def get_file(url: str) -> bytes | None:
     try:
-        x = requests.get(url)
+        x = requests.get(url, headers=headers)
         content = x.content
-    except 1:
+        print(content)
+    except:
         print('Failed to retrieve file from the server.')
         return None
 
-    return decode_and_handle_error(content, is_binary)
+    return decode_and_handle_error(content)
 
-def post_file(url, data, is_binary):
+def post_file(url: str, data: str | bytes) -> bytes | None:
     try:
-        x = requests.post(url, data)
+        x = requests.post(url, data, headers=headers)
         content = x.content
-    except 1:
+    except:
         print('Failed to send POST request and get content from the server.')
         return None
 
-    return decode_and_handle_error(content, is_binary)
+    return decode_and_handle_error(content)
 
-def get_hashes(content):
+def get_hashes(content: str) -> tuple[str | None, str | None]:
     user_hash = machine_hash = None
 
     for line in content.split('\n'):
@@ -62,8 +64,8 @@ url = input('Enter the URL (and port if needed) to the server: ')
 url = url.rstrip('/')
 
 print('Checking whether the server is accessible...')
-ok, host, port = check_server(url)
-if ok:
+host, port = check_server(url + '/')
+if type(host) == str and type(port) == str:
     print('Success.')
 else:
     print('Error: could not connect to the server.')
@@ -77,9 +79,16 @@ password = getpass('Password: ')
 
 print('\nLogging in, retrieving user and machine hashes...')
 content = get_file(url + '/api/new_machine.php?username=' + username
-                   + '&password=' + password, False)
+                   + '&password=' + password)
+if (type(content) != bytes):
+    print('Error while retrieving hashes')
+    exit(1)
+content = content.decode()
 
 user_hash, machine_hash = get_hashes(content)
+if (type(user_hash) != str or type(machine_hash) != str):
+    print('Error while retrieving hashes')
+    exit(1)
 
 print('Creating directory, storing hashes and server settings in files...')
 store_dir = 'shell_server_machine_' + machine_hash
@@ -92,7 +101,7 @@ with open(os.path.join(store_dir, 'machine_hash'), 'w') as f:
 with open(os.path.join(store_dir, 'host'), 'w') as f:
     f.write(host)
 with open(os.path.join(store_dir, 'port'), 'w') as f:
-    f.write(str(port))
+    f.write(port)
 
 print('\nDo you wish to set up the software and version manually?')
 print('If you answer "no", this utility will query and run the software '
@@ -112,11 +121,14 @@ if manual_install:
 else:
     print('Downloading binary and getting version from the user...')
     # using version 0 to force update
-    binary = post_file(url + '/api/heartbeat.php?user=' + user_hash +
-                       "&machine=" + machine_hash, '0', True)
+    res = post_file(url + '/api/heartbeat.php?user=' + user_hash +
+                       "&machine=" + machine_hash, '0')
+    if (res == None):
+        print('Failed to download binary.')
+        exit(1)
 
-    index = binary.index(b'\n')
-    binary = binary[index + 1:]
+    index = res.index(b'\n')
+    binary = res[index + 1:]
     index = binary.index(b'\n')
     version = binary[:index].decode()
     binary = binary[index + 1:]
