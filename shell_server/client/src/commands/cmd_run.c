@@ -8,13 +8,9 @@
 #include "logger/logger.h"
 #include "sock/sockutils.h"
 #include "utils/errors.h"
-#include "utils/stringbuilder.h"
 
 static int send_command_output(struct settings *settings, struct string output)
 {
-    struct string url = NULL_STRING;
-    int err = SUCCESS;
-
     char *url_arr[] = {
         "/api/enqueue_command.php?user=",
         settings->user_hash,
@@ -22,45 +18,15 @@ static int send_command_output(struct settings *settings, struct string output)
         settings->machine_hash,
         NULL,
     };
-    url = concat_str(url_arr);
-    if (url.data == NULL)
-    {
-        err = FATAL;
-        goto end;
-    }
 
-    struct sock *sock = sock_request(settings, "POST", url.data, output);
-    if (sock == NULL)
-    {
-        err = ERROR;
-        goto end;
-    }
-
-    struct string response = recv_content(sock);
-    if (response.data == NULL)
-    {
-        err = ERROR;
-        goto end;
-    }
-
-    if (STRSTARTSWITH(response.data, "error"))
-    {
-        log_error("%s", response.data);
-        err = ERROR;
-        goto end;
-    }
-
-end:
-    STRING_FREE(url);
-
+    struct string response = NULL_STRING;
+    int err = post_wrapper(settings, url_arr, output, &response);
+    STRING_FREE(response);
     return err;
 }
 
 static int mark_command_as_read(struct settings *settings)
 {
-    struct string url = NULL_STRING;
-    int err = SUCCESS;
-
     char *url_arr[] = {
         "/api/machine_read_command.php?user=",
         settings->user_hash,
@@ -68,37 +34,10 @@ static int mark_command_as_read(struct settings *settings)
         settings->machine_hash,
         NULL,
     };
-    url = concat_str(url_arr);
-    if (url.data == NULL)
-    {
-        err = FATAL;
-        goto end;
-    }
 
-    struct sock *sock = sock_request(settings, "GET", url.data, NULL_STRING);
-    if (sock == NULL)
-    {
-        err = ERROR;
-        goto end;
-    }
-
-    struct string response = recv_content(sock);
-    if (response.data == NULL)
-    {
-        err = ERROR;
-        goto end;
-    }
-
-    if (STRSTARTSWITH(response.data, "error"))
-    {
-        log_error("%s", response.data);
-        err = ERROR;
-        goto end;
-    }
-
-end:
-    STRING_FREE(url);
-
+    struct string response = NULL_STRING;
+    int err = post_wrapper(settings, url_arr, NULL_STRING, &response);
+    STRING_FREE(response);
     return err;
 }
 

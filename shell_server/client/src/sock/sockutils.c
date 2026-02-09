@@ -247,3 +247,48 @@ error:
     string_builder_destroy(line_sb);
     return NULL_STRING;
 }
+
+int post_wrapper(struct settings *settings, char *url_arr[], struct string content, struct string *out) {
+    int err = SUCCESS;
+
+    struct string url = concat_str(url_arr);
+    if (url.data == NULL)
+    {
+        err = FATAL;
+        goto error;
+    }
+
+    struct sock *sock = sock_request(settings, "POST", url.data, content);
+    STRING_FREE(url);
+    if (sock == NULL)
+    {
+        err = ERROR;
+        goto error;
+    }
+
+    struct string response = recv_content(sock);
+    if (response.data == NULL)
+    {
+        err = ERROR;
+        goto error;
+    }
+
+    if (STRSTARTSWITH(response.data, "error"))
+    {
+        log_error("%s", response.data);
+        err = ERROR;
+        goto error;
+    }
+
+    if (out) {
+        *out = response;
+        sock_destroy(sock);
+        return SUCCESS;
+    }
+
+error:
+    STRING_FREE(response);
+    sock_destroy(sock);
+
+    return err;
+}

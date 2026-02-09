@@ -18,4 +18,6 @@ struct sock *sock_request(struct settings *settings, char *request_type,
 // will be assuming the request newlines are correctly formatted
 struct string recv_content(struct sock *sock);
 
+int post_wrapper(struct settings *settings, char *url_arr[], struct string content, struct string *out);
+
 #endif /* ! SOCKUTILS_H */
