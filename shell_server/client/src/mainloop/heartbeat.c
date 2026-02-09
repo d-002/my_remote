@@ -131,6 +131,8 @@ int heartbeat(struct settings *settings, struct state *state)
         settings->user_hash,
         "&machine=",
         settings->machine_hash,
+        "&state=",
+        state_str(state->state),
         NULL,
     };
     char *content_arr[] = {

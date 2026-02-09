@@ -34,7 +34,7 @@ void state_destroy(struct state *state)
     free(state);
 }
 
-void state_sleep(struct settings *settings, struct state *state, bool action)
+bool state_sleep(struct settings *settings, struct state *state, bool action)
 {
     int now = time(NULL);
 
@@ -47,7 +47,8 @@ void state_sleep(struct settings *settings, struct state *state, bool action)
     state->state =
         now - state->last_action_timestamp < IDLE_THRESHOLD ? ACTIVE : IDLE;
 
-    if (prev != state->state)
+    bool change = prev != state->state;
+    if (change)
     {
         log_verbose(settings->verbose, "Switching state to %s",
                     state_str(state->state));
@@ -62,6 +63,8 @@ void state_sleep(struct settings *settings, struct state *state, bool action)
         sleep(SLEEP_ACTIVE);
         break;
     }
+
+    return change;
 }
 
 char *state_str(enum state_values state)

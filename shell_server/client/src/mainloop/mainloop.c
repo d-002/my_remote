@@ -1,9 +1,9 @@
 #include "mainloop.h"
 
-#include "heartbeat.h"
-#include "commands/command.h"
 #include "commands/cmd_list.h"
 #include "commands/cmd_run.h"
+#include "commands/command.h"
+#include "heartbeat.h"
 #include "queue/queue.h"
 #include "utils/errors.h"
 
@@ -38,7 +38,11 @@ int mainloop(struct settings *settings, struct state *state)
             goto end;
         }
 
-        state_sleep(settings, state, action);
+        if (state_sleep(settings, state, action) && err == SUCCESS)
+        {
+            // if the state changed, notify the server
+            err = heartbeat(settings, state);
+        }
     }
 
 end:

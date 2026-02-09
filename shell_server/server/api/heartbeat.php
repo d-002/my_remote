@@ -8,6 +8,7 @@ my_include("/utils/db-status.php");
 
 $user_hash = $_REQUEST["user"];
 $machine_hash = $_REQUEST["machine"];
+$state = $_REQUEST["state"];
 
 $db = getDB();
 $link_id = getUserMachineLink($db, $user_hash, $machine_hash);
@@ -35,7 +36,7 @@ else {
         }
         $user_version = $software["version"];
 
-        $error = updateMachineHeartbeat($db, $machine_hash);
+        $error = updateMachineHeartbeat($db, $machine_hash, $state);
 
         if ($error === "") {
             if (version_compare($machine_version, $user_version) < 0) {

@@ -56,6 +56,7 @@ CREATE TABLE software (
 CREATE TABLE machines (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     hash TEXT,
+    state TEXT,
     last_heartbeat INTEGER
 )");
     $db->exec("

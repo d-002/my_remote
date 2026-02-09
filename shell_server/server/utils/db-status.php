@@ -18,13 +18,16 @@ WHERE users.hash = :hash");
     return $line === false ? NULL : $line;
 }
 
-function updateMachineHeartbeat($db, $machine_hash) {
+function updateMachineHeartbeat($db, $machine_hash, $state) {
     try {
         $st = $db->prepare("
 UPDATE machines
-SET last_heartbeat = :timestamp
+SET
+    state = :state,
+    last_heartbeat = :timestamp
 WHERE machines.hash = :hash");
-        $st->execute(["timestamp" => time(), "hash" => $machine_hash]);
+        $st->execute(["timestamp" => time(), "hash" => $machine_hash,
+                      "state" => $state]);
     }
     catch (Exception $e) {
         return "Failed to update machine last heartbeat";

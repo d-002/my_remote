@@ -62,6 +62,7 @@ else if ($user === NULL) {
 <?php
 try {
     $st = listMachines($db, $_SESSION["username"]);
+    $hasMachines = $st->rowCount() > 0;
 
     while (true) {
         $current = $st->fetch();
@@ -80,6 +81,8 @@ catch (Exception $e) {
 }
 ?>
     </ul>
+
+    <p class="small"><?= $hasMachines ? "Use the installer to add more machines." : "You have no machines.<br>Use the installer to add one." ?></p>
 </div>
 
 <div id="right">

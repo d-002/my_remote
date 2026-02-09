@@ -92,8 +92,7 @@ function getMachineState($db, $machine_hash) {
         $st = $db->prepare("
 SELECT
     CASE
-        WHEN (:time - machines.last_heartbeat) < 3 THEN 'active'
-        WHEN (:time - machines.last_heartbeat) < 15 THEN 'idle'
+        WHEN (:time - machines.last_heartbeat) < 15 THEN machines.state
         ELSE 'off'
     END AS state
 FROM machines

@@ -7,7 +7,8 @@ const shell = document.getElementById("shell");
 const command = document.getElementById("shell-input");
 
 const selected = {
-    index: 0, // < 0 when nothing is selected
+    // < 0 when nothing is selected
+    index: machinesList.children.length === 0 ? -1 : 0,
     hash: null,
 };
 
