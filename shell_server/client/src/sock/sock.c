@@ -5,12 +5,15 @@
 #include "sock.h"
 
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
 
 #include "logger/logger.h"
+
+#define SOCK_TIMEOUT_SECONDS 5
 
 struct sock *sock_create(char *host, char *port)
 {
@@ -20,6 +23,11 @@ struct sock *sock_create(char *host, char *port)
         log_error("Failed to create socket.");
         return NULL;
     }
+
+    struct timeval tv;
+    tv.tv_sec = SOCK_TIMEOUT_SECONDS;
+    tv.tv_usec = 0;
+    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 
     struct addrinfo hints;
     struct addrinfo *info;
@@ -31,7 +39,7 @@ struct sock *sock_create(char *host, char *port)
     int status = getaddrinfo(host, port, &hints, &info);
     if (status)
     {
-        log_error("Failed to get address info.");
+        log_error("Failed to get address info: %s.", gai_strerror(status));
         close(fd);
         return NULL;
     }

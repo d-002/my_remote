@@ -110,7 +110,7 @@ static int find_content_length(struct sock *sock,
         ssize_t count = recv(sock->fd, buf, LINE_SIZE - 1, 0);
         if (count < 0)
         {
-            log_error("Could not read from socket.");
+            log_error("Could not read headers from socket.");
             return ERROR;
         }
         if (count == 0)
@@ -188,14 +188,14 @@ static int reconstitute_content(struct sock *sock,
                                 ssize_t content_length)
 {
     char buf[LINE_SIZE];
-    ssize_t total_read = 0;
+    ssize_t total_read = content_sb->length;
 
     while (content_length == -1 || total_read < content_length)
     {
         ssize_t count = recv(sock->fd, buf, LINE_SIZE - 1, 0);
         if (count < 0)
         {
-            log_error("Could not read from socket.");
+            log_error("Could not read content from socket.");
             return ERROR;
         }
         if (count == 0)

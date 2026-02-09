@@ -29,8 +29,18 @@ char *file_to_string(char *path)
         return NULL;
     }
 
-    s[count] = '\0';
     memcpy(s, buf, count * sizeof(char));
+
+    // remove trailing newlines if needed
+    s[count] = '\0';
+    if (count && s[count - 1] == '\n')
+    {
+        s[count - 1] = '\0';
+        if (count > 1 && s[count - 2] == '\r')
+        {
+            s[count - 2] = '\0';
+        }
+    }
 
     return s;
 }
