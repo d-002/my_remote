@@ -5,8 +5,8 @@
 #include "comm_api.h"
 
 #include <errno.h>
-#include <stdlib.h>
 #include <poll.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -17,8 +17,8 @@
 #include "utils/stringbuilder.h"
 
 #define BUF_SIZE 1024
-#define READ_TIMEOUT_MS 5000
-#define END_TAG "<END_TAG>"
+#define FIRST_READ_TIMEOUT_MS 5000
+#define READ_TIMEOUT_MS 500
 
 int send_sh(struct settings *settings, char *message)
 {
@@ -37,12 +37,10 @@ int send_sh(struct settings *settings, char *message)
         length -= count;
     }
 
-    // add padding to know when the shell is done
-    char padding[] = "\necho '" END_TAG "'\n";
-    ssize_t count = write(settings->shell_fd, padding, sizeof(padding));
+    ssize_t count = write(settings->shell_fd, "\n", 1);
     if (count < 0)
     {
-        log_error("Failed to send command padding to shell");
+        log_error("Failed to send command postfix newline to shell");
         return ERROR;
     }
 
@@ -130,17 +128,6 @@ int recv_sh(struct settings *settings, struct string *out)
     pfd.fd = settings->shell_fd;
     pfd.events = POLLIN;
 
-    int res = poll(&pfd, 1, READ_TIMEOUT_MS);
-    if (res < 0) {
-        log_error("Failed to poll shell events.");
-        return ERROR;
-    }
-
-    if (res == 0) {
-        log_error("Shell read timed out after %dms.", READ_TIMEOUT_MS);
-        return ERROR;
-    }
-
     struct string_builder *sb = string_builder_create(NULL);
     if (sb == NULL)
     {
@@ -151,9 +138,28 @@ int recv_sh(struct settings *settings, struct string *out)
     char buf[BUF_SIZE];
     char prev_c = '\0';
 
-    size_t index = 0; // index while strstr_ing for the end tag
+    bool has_read = false;
     while (1)
     {
+        int res =
+            poll(&pfd, 1, has_read ? READ_TIMEOUT_MS : FIRST_READ_TIMEOUT_MS);
+        if (res < 0)
+        {
+            log_error("Failed to poll shell events.");
+            err = ERROR;
+            break;
+        }
+
+        if (res == 0)
+        {
+            if (!has_read)
+            {
+                log_error("Shell read timed out after %dms.", READ_TIMEOUT_MS);
+                err = ERROR;
+            }
+            break;
+        }
+
         ssize_t count = read(settings->shell_fd, buf, BUF_SIZE - 1);
         if (count < 0)
         {
@@ -166,28 +172,11 @@ int recv_sh(struct settings *settings, struct string *out)
             break;
         }
 
+        has_read = true;
         buf[count] = '\0';
-        bool end = false;
-        for (size_t i = 0; i < (size_t)count; i++)
-        {
-            if (buf[i] == END_TAG[index])
-            {
-                if (++index == strlen(END_TAG))
-                {
-                    end = true;
-                    count = i - strlen(END_TAG) + 1;
-                    break;
-                }
-            }
-            else
-            {
-                index = 0;
-            }
-        }
 
         err = sanitize_to_sb(buf, count, sb, &prev_c);
-
-        if (end || err != SUCCESS)
+        if (err != SUCCESS)
         {
             break;
         }
@@ -212,6 +201,10 @@ int recv_sh(struct settings *settings, struct string *out)
     if (err == SUCCESS)
     {
         *out = string_builder_free_to_string(sb);
+    }
+    else
+    {
+        string_builder_destroy(sb);
     }
 
     return err;

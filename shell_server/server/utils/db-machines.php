@@ -54,11 +54,12 @@ SELECT sub.* FROM (
     ORDER BY commands.id DESC
     LIMIT 50
 ) as sub
-ORDER BY commands.id ASC");
+ORDER BY sub.id ASC");
 
         $st->execute(["link_id" => $link_id]);
     }
     catch (Exception $e) {
+        echo $e->getMessage();
         return NULL;
     }
 
