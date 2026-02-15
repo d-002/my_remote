@@ -62,9 +62,7 @@ function clearShell($db, $user_hash, $machine_hash) {
     try {
         $st = $db->prepare("
 DELETE FROM commands
-WHERE commands.link_id = :link_id
-    AND is_user = 0
-    OR is_read = 1");
+WHERE commands.link_id = :link_id");
         $st->execute(["link_id" => $link_id]);
     }
     catch (Exception $e) {
