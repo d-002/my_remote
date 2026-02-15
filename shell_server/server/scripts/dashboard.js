@@ -193,6 +193,11 @@ function renameMachine() {
 }
 
 function restartMachine() {
+    const ans = confirm("Really restart the machine?");
+    if (ans !== true) {
+        return;
+    }
+
     post("/api/enqueue_command.php?user=" + user_hash + "&machine="
         + selected.hash + "&is_user&status=request", "restart", text => {
         if (text.startsWith("error")) {
@@ -207,6 +212,11 @@ function restartMachine() {
 }
 
 function destroyMachine() {
+    const ans = confirm("Really stop and destroy shell files on the machine?");
+    if (ans !== true) {
+        return;
+    }
+
     post("/api/enqueue_command.php?user=" + user_hash + "&machine="
         + selected.hash + "&is_user&status=request", "destroy", text => {
         if (text.startsWith("error")) {
@@ -221,6 +231,12 @@ function destroyMachine() {
 }
 
 function destroyLink() {
+    const ans = confirm("Really unlink the machine with this user?\n" +
+        "If the shell is still running, this will not stop it.");
+    if (ans !== true) {
+        return;
+    }
+
     post("/api/destroy_link.php?user=" + user_hash + "&machine="
         + selected.hash, null, text => {
         if (text.startsWith("error")) {
