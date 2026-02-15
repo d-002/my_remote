@@ -104,7 +104,11 @@ static int run_special(struct settings *settings, struct command *command,
     if (command->is_read || command->sender != USER)
         return SUCCESS;
 
-    int err = SUCCESS;
+    int err = mark_command_as_read(settings);
+    if (err != SUCCESS) {
+        return send_report(settings, log_error, "Failed to mark command as read, did not run.");
+    }
+
     if (STREQL(command->content, "restart"))
     {
         *action = true;
@@ -118,14 +122,6 @@ static int run_special(struct settings *settings, struct command *command,
     else
     {
         return send_report(settings, log_error, "Unknown special action type.");
-    }
-
-    if (err == SUCCESS || err == EXIT)
-    {
-        if (err == SUCCESS)
-        {
-            err = mark_command_as_read(settings);
-        }
     }
 
     return err;
