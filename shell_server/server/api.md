@@ -41,3 +41,4 @@
 + handle custom commands like restart and destroy
 
 - log to file with -l file
+- use only modules from the standard library for the installer, update readme

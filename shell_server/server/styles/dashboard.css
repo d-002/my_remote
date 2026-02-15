@@ -171,7 +171,7 @@ li.idle::after {
 
 #shell, #command-form {
     max-height: 50vh;
-    overflow: hidden auto;
+    overflow: auto;
 
     margin: .7em 0;
     padding: .5em;

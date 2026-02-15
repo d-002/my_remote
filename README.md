@@ -34,6 +34,7 @@ Try it on your own machine! (trust)
 - C compiling suite on the target machines in case the auto-updates using static
   executables is not desired, as well as Python 3 for the installer
 - For building when using the auto-updates system, `musl-gcc`
+- For the installer, Python 3.x and `requests`
 
 **Setup:**
 
