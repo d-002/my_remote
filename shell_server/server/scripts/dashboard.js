@@ -26,7 +26,8 @@ function updateStates() {
             }
 
             text = text.trim();
-            elt.className = text;
+            const base = elt.classList.contains("selected") ? "selected " : "";
+            elt.className = base + text;
             elt.title = "This machine is " + text;
         });
     });
@@ -122,7 +123,14 @@ function updateSelection() {
 
     let i = 0;
     Array.from(machinesList.children).forEach(
-        elt => elt.className = i++ === selected.index ? "selected" : "");
+        elt => {
+            if (i++ === selected.index) {
+                elt.classList.add("selected");
+            }
+            else {
+                elt.lassList.remove("selected");
+            }
+        });
 }
 
 function sendCommand() {
@@ -141,23 +149,6 @@ function sendCommand() {
             updateShell();
             command.value = "";
             stateUpdate(true);
-        }
-    });
-}
-
-function clearShell() {
-    if (selected.index < 0) {
-        alert("error: Please select a machine first.");
-        return;
-    }
-
-    get("/api/clear_shell.php?user=" + user_hash + "&machine="
-        + selected.hash, text => {
-        if (text.startsWith("error")) {
-            alert(text);
-        }
-        else {
-            updateShell();
         }
     });
 }
@@ -188,6 +179,28 @@ function renameMachine() {
         else {
             machinesList.children[selected.index].textContent = newName;
             updateSelection();
+        }
+    });
+}
+
+function clearShell() {
+    if (selected.index < 0) {
+        alert("error: Please select a machine first.");
+        return;
+    }
+
+    const ans = confirm("Really clear all shell history, even unread commands?");
+    if (ans !== true) {
+        return;
+    }
+
+    get("/api/clear_shell.php?user=" + user_hash + "&machine="
+        + selected.hash, text => {
+        if (text.startsWith("error")) {
+            alert(text);
+        }
+        else {
+            updateShell();
         }
     });
 }
