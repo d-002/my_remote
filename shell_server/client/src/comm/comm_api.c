@@ -156,8 +156,8 @@ int recv_sh(struct settings *settings, struct string *out)
         {
             if (!has_read)
             {
-                send_report(settings, log_error, "Shell read timed out.");
-                err = SUCCESS; // mark as success to skip reading this command
+                send_report(settings, log_error, "Shell read timed out or nothing to print.");
+                err = SUCCESS;
             }
             break;
         }
