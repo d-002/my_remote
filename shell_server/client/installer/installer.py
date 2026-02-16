@@ -1,26 +1,26 @@
 import os
-import requests
 import subprocess
+from urllib.request import Request, urlopen
+from urllib.error import URLError
 from urllib.parse import urlparse
 from getpass import getuser, getpass
 
 # make the server think we are not a bot
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+headers = {'User-Agent': 'Mozilla/5.0'}
 
 def check_server(url: str) -> tuple[str | None, str | None]:
     try:
-        x = requests.head(url, stream=True, headers=headers)
-        if x.ok:
-            parsed = urlparse(x.url)
+        req = Request(url, headers=headers, method='HEAD')
+        with urlopen(req) as response:
+            parsed = urlparse(response.geturl())
             return parsed.hostname, str(parsed.port) if parsed.port else '80'
-        return None, None
-    except requests.exceptions.MissingSchema:
+    except ValueError:
         print('Make sure you specify the protocol (http / https) before the URL.')
         return None, None
-    except requests.exceptions.ConnectionError:
+    except (URLError, ConnectionError):
         return None, None
 
-def decode_and_handle_error(content: bytes) -> bytes:
+def handle_error_response(content: bytes) -> bytes:
     if content.startswith(b"error"):
         print(content.decode())
         exit(1)
@@ -29,24 +29,25 @@ def decode_and_handle_error(content: bytes) -> bytes:
 
 def get_file(url: str) -> bytes | None:
     try:
-        x = requests.get(url, headers=headers)
-        content = x.content
-        print(content)
-    except:
+        req = Request(url, headers=headers)
+        with urlopen(req) as response:
+            content = response.read()
+            return handle_error_response(content)
+    except Exception:
         print('Failed to retrieve file from the server.')
         return None
 
-    return decode_and_handle_error(content)
-
 def post_file(url: str, data: str | bytes) -> bytes | None:
     try:
-        x = requests.post(url, data, headers=headers)
-        content = x.content
+        if isinstance(data, str):
+            data = data.encode('utf-8')
+
+        req = Request(url, data=data, headers=headers, method='POST')
+        with urlopen(req) as response:
+            return handle_error_response(response.read())
     except:
         print('Failed to send POST request and get content from the server.')
         return None
-
-    return decode_and_handle_error(content)
 
 def get_hashes(content: str) -> tuple[str | None, str | None]:
     user_hash = machine_hash = None

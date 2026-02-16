@@ -15,7 +15,6 @@
   command)
 
 - view global files version and sync update, toggle to disable updates
-- log out after some time
 - implement machine link deletion: if no users reference it, delete it and all
   the associated data
 - delete user
@@ -39,6 +38,3 @@
 + send status messages: command timeout, errors related to the shell, feedback
   for restart, destroy
 + handle custom commands like restart and destroy
-
-- log to file with -l file
-- use only modules from the standard library for the installer, update readme
