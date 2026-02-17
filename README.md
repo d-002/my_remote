@@ -7,16 +7,23 @@ Tool suite for remote shells and whatnot
 > purposes, to provide insights for detection development, as well as show some
 > consequences of a bad usage of things like a shared file storage.
 > I am only doing this to research different technologies (php, socket
-> communication in C...)
+> communication in C, custom API protocols, command and control study...)
 > 
-> Do not use this code maliciously, namely to attack or scan real devices.
+> Do not use this code maliciously, namely to attack, scan or keep control over
+> real devices.
 > Unauthorized use is illegal and violates GitHub policy.
+> 
+> The author is not responsible for any misuse of this software.
+> By downloading or using this code, you agree to take full responsibility for
+> your actions and to comply with all local, state, and federal laws, as well as
+> institutional policies.
 
 ## fs_remote
 
-A basic client/server protocol using a file system for communication.  
-Allows things like a basic remote shell and features could easily be added on
-top of it.
+A basic, lightweight protocol for sending commands remotely over a shared file
+system.
+
+This is a study of data-exfiltration and C2 channel via shared storage.
 
 **Requirements:**
 
@@ -25,16 +32,26 @@ top of it.
 
 ## shell_server
 
-A simple remote shell, operated from a web interface.
-Try it on your own machine! (trust)
+A simple remote shell that can be operated namely from a web (PHP) interface.
 
-**Requirements:**
+This is study for a centralized, scalable Command and control framework, with
+automated provisioning, version control, authentication system with accounts
+and concurrent users handling.
 
-- A PHP-capable server, that supports sqlite3
-- C compiling suite on the target machines in case the auto-updates using static
-  executables is not desired, as well as Python 3 for the installer
-- For building when using the auto-updates system, `musl-gcc`
-- For the installer, Python 3.x
+For example, multiple users can manage an endpoint without any of them knowing
+about the other users, all while accessing the same remote control panel.
+
+Send commands remotely to a machine, have a real-time feedback on their output,
+update the software, shut it down, reasonably reduce its footprint remotely.
+
+**Tech stack:**
+
+- Backend: PHP 8.x + sqlite3
+- Client: C
+- Toolchain: `musl-gcc` for portability over Linux-based systems, but the usage
+  of a custom binary is possible on installation (if you want to run the program
+  on Windows for example).
+- Client installer: Python 3.x
 
 **Setup:**
 
@@ -42,7 +59,9 @@ Try it on your own machine! (trust)
   You will also need to create files `/software/version` (text containing the
   version) and `/software/binary` (compiled static software) for when users are
   created.
-- Log into the server, creating a user to which the machines you affect will be
+  Currently, this central software and its associated version can only be
+  changed manually by server administrators.
+- Log into the server, creating a user to which the remote agents will be
   linked.
   This also adds a small security layer to determine who is able to run commands
   on these machines.
@@ -52,9 +71,8 @@ Try it on your own machine! (trust)
 
 The remote shell program sends a heartbeat to the server, which also serves as
 a way to check its software version.
-If you choose to enable automatic software updates, you can provide a compiled
-executable in your dashboard and remote shells will automatically update to that
-provided version.
+You can enable automatic software updates, in this case it is possible to sync
+your version to the main one on demand and your machines will update to yours.
 Software versions are handled separately for all website users, to avoid
 breaking changes.
 
@@ -76,7 +94,7 @@ The client (and in some cases the website user) initiates all data
 transmissions: querying for a new version or update files, to read the command
 queue and edit it, or write to the output stream (combined stdout and stderr).
 
-Server admins have full control and can view all keys but this should not really
-matter (and I'm too lazy to fix this).
-Additionally, as data is not encrypted you are advised to use complementary
+Server admins have full control and can view all keys by design, to ensure
+transparency.
+As data is not encrypted by default you are advised to use complementary
 end-to-end encryption if safety is a concern.
