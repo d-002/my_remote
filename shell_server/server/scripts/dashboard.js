@@ -128,7 +128,7 @@ function updateSelection() {
                 elt.classList.add("selected");
             }
             else {
-                elt.lassList.remove("selected");
+                elt.classList.remove("selected");
             }
         });
 }

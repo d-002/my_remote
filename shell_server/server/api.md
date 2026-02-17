@@ -15,8 +15,6 @@
   command)
 
 - view global files version and sync update, toggle to disable updates
-- implement machine link deletion: if no users reference it, delete it and all
-  the associated data
 - delete user
 
 ## machine
