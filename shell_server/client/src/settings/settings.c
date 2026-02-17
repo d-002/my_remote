@@ -63,13 +63,13 @@ struct settings *settings_create(int argc, char *argv[])
     }
     log_verbose(settings->verbose, "Running in verbose mode.");
 
+    int shell_fd = comm_setup(settings);
+
     char *host = file_to_string(HOST_FILE);
     char *port = file_to_string(PORT_FILE);
     char *user_hash = file_to_string(USER_HASH_FILE);
     char *machine_hash = file_to_string(MACHINE_HASH_FILE);
     char *version = file_to_string(VERSION_FILE);
-
-    int shell_fd = comm_setup(settings);
 
     if (host == NULL || port == NULL || user_hash == NULL
         || machine_hash == NULL || version == NULL || shell_fd < 0)

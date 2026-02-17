@@ -1,5 +1,7 @@
 #include "cmd_special.h"
 
+#include <libgen.h>
+#include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,6 +52,18 @@ int destroy(struct settings *settings)
         }
     }
 
+    // also delete parent directory if empty (if not empty, will trigger an
+    // error, ignore it)
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, PATH_MAX) != NULL)
+    {
+        char *parent = dirname(cwd);
+        if (parent != NULL)
+        {
+            rmdir(parent);
+        }
+    }
+
     send_report(settings, log_info, "Done destroying, will stop now.");
     return EXIT;
 }
@@ -59,12 +73,8 @@ int send_report(struct settings *settings, log_func log_func, char *report)
     log_func(report);
 
     char *url_arr[] = {
-        "/api/enqueue_command.php?user=",
-        settings->user_hash,
-        "&machine=",
-        settings->machine_hash,
-        "&status=report",
-        NULL,
+        "/api/enqueue_command.php?user=", settings->user_hash, "&machine=",
+        settings->machine_hash,           "&status=report",    NULL,
     };
 
     struct string content = {
