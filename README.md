@@ -34,6 +34,8 @@ This is a study of data-exfiltration and C2 channel via shared storage.
 
 A simple remote shell that can be operated namely from a web (PHP) interface.
 
+![screenshot of the shell_server dashboard][1]
+
 This is study for a centralized, scalable Command and control framework, with
 automated provisioning, version control, authentication system with accounts
 and concurrent users handling.
@@ -98,3 +100,5 @@ Server admins have full control and can view all keys by design, to ensure
 transparency.
 As data is not encrypted by default you are advised to use complementary
 end-to-end encryption if safety is a concern.
+
+  [1]: https://raw.githubusercontent.com/d-002/my_remote/refs/heads/main/shell_server/dashboard.png
