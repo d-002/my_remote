@@ -1,7 +1,6 @@
 #include "cmd_special.h"
 
 #include <libgen.h>
-#include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +9,8 @@
 #include "sock/sockutils.h"
 #include "utils/errors.h"
 #include "utils/stringutils.h"
+
+#define PATH_MAX 4096
 
 int restart(struct settings *settings)
 {
