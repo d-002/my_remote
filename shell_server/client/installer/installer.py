@@ -131,6 +131,13 @@ else:
         print('Failed to download binary.')
         exit(1)
 
+    if (res == b"success"):
+        print('Failed to download update, please sync your software version and'
+              ' enable automatic updates in your dashboard.')
+        print('Installation failed. Please remove files locally and unlink the'
+              ' machine in your dashboard.')
+        exit(1)
+
     index = res.index(b'\n')
     binary = res[index + 1:]
     index = binary.index(b'\n')
@@ -144,8 +151,7 @@ else:
         f.write(binary)
     os.chmod(bin_path, 0o755)
 
-    print('Starting software...')
-    subprocess.Popen(bin_path)
-
     print('\nSuccessfully installed.')
-    print('You can now go back to your dashboard on the server.')
+    print('You can now start the software then go back to your dashboard.')
+    print(f'Software location: {bin_path}')
+    print('Make sure to cd into the software directory before starting.')
