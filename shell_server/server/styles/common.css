@@ -1,0 +1,84 @@
+@font-face {
+    src: url("/fonts/roboto-variable.ttf");
+    font-family: "roboto";
+    font-display: swap;
+}
+
+* {
+    font-size: 1rem;
+}
+
+body, html {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+
+    --bg1: #f9fafb;
+    --bg2: #ffffff;
+    --bg3: #d5dbe5;
+    --bgspecial: #556084;
+    --bgshell: #3a3a3a;
+
+    --fg1: #1f1e1e;
+    --fg2: #656565;
+    --fgspecial: #f0f7fd;
+    --fgshell: #d7d7d7;
+
+    --link: #3971a5;
+
+    --mono: consolas, monospace;
+
+    font-size: 24px;
+}
+
+body, input {
+    background-color: var(--bg1);
+    color: var(--fg1);
+
+    font-family: "roboto", calibri, sans-serif;
+}
+
+body.center-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+p.small {
+    margin: 0;
+
+    font-size: 0.8em;
+    color: var(--fg2);
+}
+
+p.error {
+    text-align: center;
+    color: #e14040;
+}
+
+a {
+    cursor: pointer;
+
+    color: var(--link);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:not(.button):hover {
+    text-decoration: underline;
+}
+
+code {
+    display: inline-block;
+    transform: translateY(-.2em);
+    padding: .3em;
+
+    background-color: #00000010;
+    border-radius: .2em;
+
+    font-family: var(--mono);
+    font-size: .7em;
+}
