@@ -38,7 +38,7 @@ else if ($user === NULL) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
-<body user-hash="<?= $user_hash ?>">
+<body username="<?= $_SESSION["username"] ?>" user-hash="<?= $user_hash ?>">
 
 <div id="header">
     <div id="header-left">
@@ -103,6 +103,7 @@ catch (Exception $e) {
         <a onclick="clearShell()">Clear shell history</a>
         <a onclick="destroyMachine()">Ask for machine destruction</a>
         <a onclick="destroyLink()">Destroy link to machine</a>
+        <a onclick="deleteAccount()">Delete account</a>
     </div>
 </div>
 </div>

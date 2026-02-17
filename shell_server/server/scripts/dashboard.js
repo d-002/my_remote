@@ -1,5 +1,6 @@
 // ===== variables =====
 
+const username = document.body.getAttribute("username");
 const user_hash = document.body.getAttribute("user-hash");
 const info = document.getElementById("selected-machine-info");
 const machinesList = document.getElementById("machines-list");
@@ -259,6 +260,26 @@ function destroyLink() {
             document.location.reload();
         }
     });
+}
+
+function deleteAccount() {
+    const ans = confirm("Really delete this account?\n" +
+        "Running machines will not be stopped.");
+    if (ans !== true) {
+        return;
+    }
+
+    const password = prompt("Enter your password:");
+
+    post("/api/delete_user.php?username=" + username + "&password=" + password,
+        null, text => {
+            if (text.startsWith("error")) {
+                alert(text);
+            }
+            else {
+                document.location.href = "/login";
+            }
+        });
 }
 
 // ===== listeners =====

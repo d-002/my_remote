@@ -117,39 +117,44 @@ function removeLink($db, $user_hash, $machine_hash) {
     }
 
     try {
+        $db->beginTransaction();
+        $st = $db->prepare("
+SELECT machines.id
+FROM machines
+WHERE machines.hash = :hash");
+        $st->execute(["hash" => $machine_hash]);
+        $machine_id = $st->fetchColumn();
+
+        if ($machine_id === false) {
+            return "Failed to get machine id.";
+        }
+
         $st = $db->prepare("
 DELETE FROM links
 WHERE links.id = :link_id");
         $st->execute(["link_id" => $link_id]);
-    }
-    catch (Exception $e) {
-        return "Failed to delete link.";
-    }
 
-    // check if no user references this machine, if so delete it
-    try {
+        // check if no user references this machine, if so delete it
         $st = $db->prepare("
 SELECT links.id
 FROM links
 JOIN machines
 ON links.machine_id = machines.id
-WHERE machines.hash = :hash");
-        $st->execute(["hash" => $machine_hash]);
+WHERE machines.id = :machine_id");
+        $st->execute(["machine_id" => $machine_id]);
         $referenced = $st->fetchColumn() !== false;
 
         if (!$referenced) {
-            try {
-                $st = $db->prepare("
+            $st = $db->prepare("
 DELETE FROM machines
 WHERE machines.hash = :hash");
-                $st->execute(["hash" => $machine_hash]);
-            }
-            catch (Exception $e) {
-                return "Failed to delete machine from database.";
-            }
+            $st->execute(["hash" => $machine_hash]);
         }
+
+        $db->commit();
     }
     catch (Exception $e) {
+        $db->rollback();
         return "Failed to check machine references.";
     }
 

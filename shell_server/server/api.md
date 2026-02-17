@@ -15,7 +15,6 @@
   command)
 
 - view global files version and sync update, toggle to disable updates
-- delete user
 
 ## machine
 + register and attach to user

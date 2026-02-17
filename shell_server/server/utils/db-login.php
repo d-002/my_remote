@@ -112,4 +112,40 @@ VALUES
 
     return $hash;
 }
+
+function deleteUser($db, $username, $password) {
+    $error = loginUser($db, $username, $password);
+    if ($error !== "") {
+        return "Failed to log in.";
+    }
+
+    $user = fetchUser($db, $username);
+    if ($user === NULL) {
+        return "No such user.";
+    }
+
+    try {
+        $db->beginTransaction();
+
+        $st = $db->prepare("
+DELETE FROM users
+WHERE users.hash = :hash");
+        $st->execute(["hash" => $user["hash"]]);
+        $st = $db->prepare("
+DELETE FROM software
+WHERE software.user_id = :id");
+        $st->execute(["id" => $user["id"]]);
+        $st = $db->prepare("
+DELETE FROM links
+WHERE links.user_id = :id");
+        $st->execute(["id" => $user["id"]]);
+        $db->commit();
+    }
+    catch (Exception $e) {
+        $db->rollBack();
+        return "Failed to delete user.";
+    }
+
+    return "";
+}
 ?>
