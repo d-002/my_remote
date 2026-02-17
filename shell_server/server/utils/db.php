@@ -49,6 +49,7 @@ CREATE TABLE software (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     version TEXT,
+    force_update INTEGER,
     binary BLOB,
     FOREIGN KEY(user_id) REFERENCES users(id)
 )");

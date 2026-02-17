@@ -285,6 +285,28 @@ function deleteAccount() {
         });
 }
 
+function syncUpdate() {
+    post("/api/sync_update.php?user=" + user_hash, null, text => {
+        if (text.startsWith("error")) {
+            alert(text);
+        }
+        else {
+            document.location.reload();
+        }
+    });
+}
+
+function toggleForceUpdate() {
+    post("/api/toggle_force_update.php?user=" + user_hash, null, text => {
+        if (text.startsWith("error")) {
+            alert(text);
+        }
+        else {
+            document.location.reload();
+        }
+    });
+}
+
 // ===== listeners =====
 
 updateSelection();

@@ -2,6 +2,7 @@
 require $_SERVER["DOCUMENT_ROOT"] . "/utils/base.php";
 my_include("/utils/db.php");
 my_include("/utils/db-login.php");
+my_include("/utils/db-version.php");
 my_include("/utils/db-machines.php");
 
 session_start();
@@ -12,6 +13,8 @@ $logged_in = $_SESSION["username"] !== NULL;
 if ($logged_in) {
     $user = fetchUser($db, $_SESSION["username"]);
     $user_hash = $user["hash"];
+
+    $version = getVersionInfo($db, $user_hash);
 }
 ?>
 
@@ -55,6 +58,12 @@ else if ($user === NULL) {
 
 <div id="main">
 <div id="left">
+    <h2>Version control</h2>
+    <p>Your software version is <?= $version["user"] ?>, latest is <?= $version["server"] ?></p>
+    <a onclick="syncUpdate()">Sync version</a>
+    <p>Machines force update is <?= $version["force"] ? "ON" : "OFF"?></p>
+    <a onclick="toggleForceUpdate()">Toggle force update</a>
+
     <h2>My machines</h2>
     <ul id="machines-list">
 <?php

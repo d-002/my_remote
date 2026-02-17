@@ -143,6 +143,7 @@ ON links.machine_id = machines.id
 WHERE machines.id = :machine_id");
         $st->execute(["machine_id" => $machine_id]);
         $referenced = $st->fetchColumn() !== false;
+        $st->closeCursor();
 
         if (!$referenced) {
             $st = $db->prepare("

@@ -46,9 +46,9 @@ VALUES
 
         $st = $db->prepare("
 INSERT INTO software
-    (user_id, version, binary)
+    (user_id, version, force_update, binary)
 VALUES
-    (:user_id, :version, :binary)");
+    (:user_id, :version, 1, :binary)");
         $st->execute(["user_id" => $user_id, "version" => $version, "binary" => $binary]);
         $db->commit();
     }

@@ -36,6 +36,11 @@ else {
         }
         $user_version = $software["version"];
 
+        // no forced updates: ignore version_compare
+        if ($software["forced_update"] == 0) {
+            $user_version = $machine_version;
+        }
+
         $error = updateMachineHeartbeat($db, $machine_hash, $state);
 
         if ($error === "") {
