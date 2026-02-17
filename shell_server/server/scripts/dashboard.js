@@ -270,6 +270,9 @@ function deleteAccount() {
     }
 
     const password = prompt("Enter your password:");
+    if (password == null) {
+        return;
+    }
 
     post("/api/delete_user.php?username=" + username + "&password=" + password,
         null, text => {
